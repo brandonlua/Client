@@ -15,10 +15,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.shader.Framebuffer;
+import net.minecraft.util.ResourceLocation;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CategoryPanel {
 
@@ -26,12 +29,23 @@ public class CategoryPanel {
     private float x;
     private float y;
     private float width = 130;
-    private float headerHeight = 13;
+    private float headerHeight = 16;
     private float scroll = 0;
     private List<ModuleButton> moduleButtons = new ArrayList<>();
     private Framebuffer shadowFramebuffer = new Framebuffer(1, 1, false);
 
-    private static final float RADIUS = 3f;
+    private static final float RADIUS = 2f;
+
+    private static final Map<Category, ResourceLocation> ICONS = new HashMap<>();
+
+    static {
+        ICONS.put(Category.PLAYER, new ResourceLocation("minecraft", "client/icon/Player.png"));
+        ICONS.put(Category.WORLD, new ResourceLocation("minecraft", "client/icon/World.png"));
+        ICONS.put(Category.RENDER, new ResourceLocation("minecraft", "client/icon/Visual.png"));
+        ICONS.put(Category.MOVEMENT, new ResourceLocation("minecraft", "client/icon/Movement.png"));
+        ICONS.put(Category.COMBAT, new ResourceLocation("minecraft", "client/icon/Combat.png"));
+        ICONS.put(Category.MISC, new ResourceLocation("minecraft", "client/icon/misc.png"));
+    }
 
     public CategoryPanel(Category category, float x, float y) {
         this.category = category;
@@ -61,7 +75,7 @@ public class CategoryPanel {
         float displayHeight = Math.min(totalContentHeight + 2, maxPanelHeight);
         float totalHeight = headerHeight + displayHeight;
 
-        Color bgColor = new Color(30, 30, 30, blurOn ? 100 : 245);
+        Color bg = new Color(28, 28, 28, blurOn ? 95 : 240);
 
         if (shadowOn) {
             shadowFramebuffer = RenderUtil.createFrameBuffer(shadowFramebuffer);
@@ -78,17 +92,21 @@ public class CategoryPanel {
 
         if (blurOn) {
             Blur.startBlur();
-            RenderUtil.drawRoundedRect(x, y, width, totalHeight, RADIUS, bgColor);
+            RenderUtil.drawRoundedRect(x, y, width, totalHeight, RADIUS, bg);
             Blur.endBlur(postProcessing.blurRadius.get(), 1);
         }
 
-        RenderUtil.drawRoundedRect(x, y, width, totalHeight, RADIUS, bgColor);
+        RenderUtil.drawRoundedRect(x, y, width, totalHeight, RADIUS, bg);
 
-        RenderUtil.drawRect(x, y + headerHeight - 1, width, 1, new Color(255, 255, 255, 18));
+        RenderUtil.drawRect(x + 1, y + headerHeight - 0.5f, width - 2, 0.5f, new Color(255, 255, 255, 15));
 
-        String categoryName = category.name();
-        categoryName = categoryName.charAt(0) + categoryName.substring(1).toLowerCase();
-        currentFont.drawString(categoryName, x + 5, y + 3, new Color(210, 210, 210).getRGB());
+        ResourceLocation icon = ICONS.get(category);
+        if (icon != null) {
+            RenderUtil.drawImage(icon, x + 3, y + 2, 12, 12);
+        }
+
+        String categoryName = category.name().charAt(0) + category.name().substring(1).toLowerCase();
+        currentFont.drawString(categoryName, x + 18, y + 4, new Color(200, 200, 200).getRGB());
 
         float maxScroll = Math.max(0, totalContentHeight - maxPanelHeight + 2);
         scroll = Math.max(0, Math.min(scroll, maxScroll));
@@ -115,7 +133,7 @@ public class CategoryPanel {
 
         org.lwjgl.opengl.GL11.glDisable(org.lwjgl.opengl.GL11.GL_SCISSOR_TEST);
 
-        RenderUtil.drawRoundedRect(x, y, width, totalHeight, RADIUS, new Color(255, 255, 255, 12));
+        RenderUtil.drawRoundedRect(x, y, width, totalHeight, RADIUS, new Color(255, 255, 255, 10));
     }
 
     public void handleClick(int mouseX, int mouseY, int mouseButton, Module[] listeningModule, ModeValue[] expandedMode, ColorPicker colorPicker, TextValue[] editingText) {
