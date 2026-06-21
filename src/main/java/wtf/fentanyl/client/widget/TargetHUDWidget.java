@@ -37,7 +37,7 @@ public class TargetHUDWidget {
     private float displayHp;
     private ResourceLocation skin;
     private final DecimalFormat decimalFormat = new DecimalFormat("0.0");
-    private String mode = "Akrien";
+    private String mode = "Akriens";
     private Framebuffer stencilFramebuffer = new Framebuffer(1, 1, false);
     private Framebuffer shadowFramebuffer = new Framebuffer(1, 1, false);
 
