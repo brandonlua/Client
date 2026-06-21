@@ -18,8 +18,8 @@ public class ColorPicker {
         float hueX = x + width - hueW;
         float satW = width - hueW - 3;
 
-        for (int py = 0; py < height; py++) {
-            for (int px = 0; px < satW; px++) {
+        for (int py = 0; py < (int) height; py++) {
+            for (int px = 0; px < (int) satW; px++) {
                 float s = px / satW;
                 float b = 1.0f - (py / height);
                 Color c = Color.getHSBColor(colorValue.getHue(), s, b);
@@ -27,11 +27,26 @@ public class ColorPicker {
             }
         }
 
-        for (int i = 0; i < height; i++) {
+        for (int i = 0; i < (int) height; i++) {
             float h = i / height;
             Color hc = Color.getHSBColor(h, 1.0f, 1.0f);
             RenderUtil.drawRect(hueX, y + i, hueW, 1, hc);
         }
+
+        RenderUtil.drawRoundedRect(x, y, satW, height, 2, new Color(0, 0, 0, 0));
+        RenderUtil.drawRoundedRect(hueX, y, hueW, height, 2, new Color(0, 0, 0, 0));
+
+        RenderUtil.drawRoundedRect(x - 1, y - 1, satW + 2, height + 2, 2, new Color(255, 255, 255, 15));
+        RenderUtil.drawRoundedRect(hueX - 1, y - 1, hueW + 2, height + 2, 2, new Color(255, 255, 255, 15));
+
+        float[] hsb = Color.RGBtoHSB(colorValue.get().getRed(), colorValue.get().getGreen(), colorValue.get().getBlue(), null);
+        float dotX = x + hsb[1] * satW;
+        float dotY = y + (1.0f - hsb[2]) * height;
+        RenderUtil.drawRoundedRect(dotX - 3, dotY - 3, 6, 6, 3, new Color(255, 255, 255, 200));
+        RenderUtil.drawRoundedRect(dotX - 2, dotY - 2, 4, 4, 2, colorValue.get());
+
+        float hueIndicatorY = y + hsb[0] * height;
+        RenderUtil.drawRect(hueX - 1, hueIndicatorY - 1, hueW + 2, 2, new Color(255, 255, 255, 220));
 
         if (editingColor == colorValue && editingSat && Mouse.isButtonDown(0)) {
             float s = Math.max(0, Math.min((mouseX - x) / satW, 1));

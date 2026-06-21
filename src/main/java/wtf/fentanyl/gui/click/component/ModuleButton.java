@@ -73,12 +73,14 @@ public class ModuleButton {
             if (module.isToggled()) {
                 modBg = hoverMod ? new Color(50, 50, 50) : new Color(45, 45, 45);
             } else {
-                modBg = hoverMod ? new Color(35, 35, 35) : new Color(30, 30, 30);
+                modBg = hoverMod ? new Color(38, 38, 38) : new Color(33, 33, 33);
             }
         }
 
         RenderUtil.drawRect(x + 1.5f, y, width - 3, 13, modBg);
-        currentFont.drawString(module.getName(), x + 5, y + 3, Color.WHITE.getRGB());
+
+        currentFont.drawString(module.getName(), x + 5, y + 3,
+                module.isToggled() ? Color.WHITE.getRGB() : new Color(180, 180, 180).getRGB());
     }
 
     public float renderSettings(float x, float y, float width, int mouseX, int mouseY, CFontRenderer font, Color themeColor, Module listeningModule, ModeValue expandedMode, ColorPicker colorPicker, TextValue editingText) {
@@ -97,7 +99,7 @@ public class ModuleButton {
                 keyName = "...";
             }
             float keyX = x + width - 5;
-            RenderUtil.drawRect(keyX - currentFont.getStringWidth(keyName) - 2, y + offsetY + 2.5f, currentFont.getStringWidth(keyName) + 4, 8 * animation, new Color(45, 45, 45, (int) (255 * animation)));
+            RenderUtil.drawRoundedRect(keyX - currentFont.getStringWidth(keyName) - 2, y + offsetY + 2.5f, currentFont.getStringWidth(keyName) + 4, 8 * animation, 2, new Color(45, 45, 45, (int) (255 * animation)));
             currentFont.drawString(keyName, keyX - currentFont.getStringWidth(keyName), y + offsetY + 3, new Color(255, 255, 255, (int) (255 * animation)).getRGB());
 
             offsetY += 13 * animation;
@@ -138,20 +140,16 @@ public class ModuleButton {
         RenderUtil.drawRect(x + 1.5f, y, width - 3, 13 * animation, bg);
         font.drawString(boolValue.getName(), x + 5, y + 3, new Color(255, 255, 255, (int) (255 * animation)).getRGB());
 
-        float boxX = x + width - 12;
+        float boxX = x + width - 14;
         float boxY = y + 3f;
-        float boxSize = 7;
+        float boxW = 11;
+        float boxH = 7;
 
-        RenderUtil.drawRect(boxX, boxY, boxSize, boxSize * animation, new Color(50, 50, 50, (int) (255 * animation)));
+        RenderUtil.drawRoundedRect(boxX, boxY, boxW, boxH * animation, 2, new Color(50, 50, 50, (int) (255 * animation)));
 
         if (boolValue.get()) {
-            int checkColor = new Color(255, 255, 255, (int) (255 * animation)).getRGB();
-            GlStateManager.enableBlend();
-            GlStateManager.disableTexture2D();
-            RenderUtil.drawLine(boxX + 1.5f, boxY + 3.5f, boxX + 3.0f, boxY + 5.5f, 2.0f, checkColor);
-            RenderUtil.drawLine(boxX + 3.0f, boxY + 5.5f, boxX + 6.0f, boxY + 1.5f, 2.0f, checkColor);
-            GlStateManager.enableTexture2D();
-            GlStateManager.disableBlend();
+            RenderUtil.drawRoundedRect(boxX + 1, boxY + 1, boxW - 2, (boxH - 2) * animation, 1,
+                    new Color(themeColor.getRed(), themeColor.getGreen(), themeColor.getBlue(), (int) (255 * animation)));
         }
 
         return 13 * animation;
@@ -173,21 +171,23 @@ public class ModuleButton {
         RenderUtil.drawRect(x + 1.5f, y, width - 3, 18 * animation, bg);
 
         float sliderX = x + 8;
-        float sliderY = y + (18 * animation) / 2.0f - 5;
+        float sliderY = y + (18 * animation) / 2.0f - 3;
         float sliderWidth = width - 16;
-        float sliderHeight = 10;
+        float sliderHeight = 6;
 
-        RenderUtil.drawRect(sliderX, sliderY, sliderWidth, sliderHeight * animation, new Color(45, 45, 45, (int) (255 * animation)));
+        RenderUtil.drawRoundedRect(sliderX, sliderY, sliderWidth, sliderHeight * animation, 2, new Color(45, 45, 45, (int) (255 * animation)));
 
         Color currentTheme = getThemeColor();
-        RenderUtil.drawRect(sliderX, sliderY, sliderWidth * percent, sliderHeight * animation,
-                new Color(currentTheme.getRed(), currentTheme.getGreen(), currentTheme.getBlue(), (int) (255 * animation)));
+        if (percent > 0) {
+            RenderUtil.drawRoundedRect(sliderX, sliderY, sliderWidth * percent, sliderHeight * animation, 2,
+                    new Color(currentTheme.getRed(), currentTheme.getGreen(), currentTheme.getBlue(), (int) (255 * animation)));
+        }
 
         font.drawString(sliderValue.getName(), x + 9, y + 5, new Color(255, 255, 255, (int) (255 * animation)).getRGB());
 
         String formattedValue = String.valueOf(sliderVal);
         font.drawString(formattedValue, x + width - 8 - font.getStringWidth(formattedValue), y + 5,
-                new Color(221, 221, 221, (int) (255 * animation)).getRGB());
+                new Color(180, 180, 180, (int) (255 * animation)).getRGB());
 
         if (isHovered(mouseX, mouseY, sliderX, sliderY, sliderWidth, sliderHeight * animation) && Mouse.isButtonDown(0)) {
             double normalizedX = (mouseX - sliderX) / sliderWidth;
@@ -213,16 +213,16 @@ public class ModuleButton {
         font.drawString(modeValue.getName(), x + 5, y + 3, new Color(255, 255, 255, (int) (255 * animation)).getRGB());
 
         String currentMode = modeValue.get();
-        font.drawString(currentMode, x + width - 5 - font.getStringWidth(currentMode), y + 3, new Color(255, 255, 255, (int) (255 * animation)).getRGB());
+        font.drawString(currentMode, x + width - 5 - font.getStringWidth(currentMode), y + 3, new Color(180, 180, 180, (int) (255 * animation)).getRGB());
 
         float offsetY = 13 * animation;
 
         if (expandedMode == modeValue) {
             for (String mode : modeValue.getModes()) {
                 boolean isSelected = mode.equals(currentMode);
-                Color modeBg = blurOn ? new Color(35, 35, 35, 100) : new Color(35, 35, 35);
+                Color modeBg = blurOn ? new Color(32, 32, 32, 100) : new Color(32, 32, 32);
                 RenderUtil.drawRect(x + 1.5f, y + offsetY, width - 3, 13, modeBg);
-                int textColor = isSelected ? new Color(220, 220, 220).getRGB() : new Color(120, 120, 120).getRGB();
+                int textColor = isSelected ? new Color(220, 220, 220).getRGB() : new Color(110, 110, 110).getRGB();
                 font.drawString(mode, x + 8, y + offsetY + 3, textColor);
                 offsetY += 13;
             }
@@ -253,8 +253,8 @@ public class ModuleButton {
         float colorBoxW = 18;
         float colorBoxH = 8;
 
-        RenderUtil.drawRect(colorBoxX, colorBoxY, colorBoxW, colorBoxH * animation, new Color(50, 50, 50, (int) (255 * animation)));
-        RenderUtil.drawRect(colorBoxX + 1, colorBoxY + 1, colorBoxW - 2, (colorBoxH - 2) * animation, currentColor);
+        RenderUtil.drawRoundedRect(colorBoxX, colorBoxY, colorBoxW, colorBoxH * animation, 2, new Color(50, 50, 50, (int) (255 * animation)));
+        RenderUtil.drawRoundedRect(colorBoxX + 1, colorBoxY + 1, colorBoxW - 2, (colorBoxH - 2) * animation, 2, currentColor);
 
         if (colorPicker != null && colorPicker.isExpanded(colorValue)) {
             colorPicker.render(x + 5, y + 15, width - 10, 45, colorValue, mouseX, mouseY);
@@ -265,8 +265,8 @@ public class ModuleButton {
             boolean hoverCopy = isHovered(mouseX, mouseY, x + 5, buttonY, buttonWidth, 11);
             boolean hoverPaste = isHovered(mouseX, mouseY, x + 8 + buttonWidth, buttonY, buttonWidth, 11);
 
-            RenderUtil.drawRect(x + 5, buttonY, buttonWidth, 11, hoverCopy ? new Color(55, 55, 55) : new Color(48, 48, 48));
-            RenderUtil.drawRect(x + 8 + buttonWidth, buttonY, buttonWidth, 11, hoverPaste ? new Color(55, 55, 55) : new Color(48, 48, 48));
+            RenderUtil.drawRoundedRect(x + 5, buttonY, buttonWidth, 11, 2, hoverCopy ? new Color(55, 55, 55) : new Color(45, 45, 45));
+            RenderUtil.drawRoundedRect(x + 8 + buttonWidth, buttonY, buttonWidth, 11, 2, hoverPaste ? new Color(55, 55, 55) : new Color(45, 45, 45));
 
             font.drawString("Copy", x + 5 + (buttonWidth - font.getStringWidth("Copy")) / 2, buttonY + 1.5f, new Color(200, 200, 200).getRGB());
             font.drawString("Paste", x + 8 + buttonWidth + (buttonWidth - font.getStringWidth("Paste")) / 2, buttonY + 1.5f, new Color(200, 200, 200).getRGB());
@@ -294,7 +294,7 @@ public class ModuleButton {
         if (displayText.isEmpty()) displayText = "Empty";
         if (editingText == textValue) displayText = textValue.get() + "_";
 
-        font.drawString(displayText, x + width - 5 - font.getStringWidth(displayText), y + 3, new Color(255, 255, 255, (int) (255 * animation)).getRGB());
+        font.drawString(displayText, x + width - 5 - font.getStringWidth(displayText), y + 3, new Color(180, 180, 180, (int) (255 * animation)).getRGB());
 
         return 13 * animation;
     }
@@ -331,8 +331,8 @@ public class ModuleButton {
 
                     if (value instanceof BoolValue) {
                         BoolValue boolValue = (BoolValue) value;
-                        float boxX = x + width - 12;
-                        if (isHovered(mouseX, mouseY, boxX, y + offsetY + 3f, 7, 7 * animation) && mouseButton == 0) {
+                        float boxX = x + width - 14;
+                        if (isHovered(mouseX, mouseY, boxX, y + offsetY + 3f, 11, 7 * animation) && mouseButton == 0) {
                             boolValue.toggle();
                         }
                         offsetY += 13 * animation;
