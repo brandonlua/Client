@@ -4,7 +4,13 @@ A **1.8.9** Minecraft client built from scratch, for Java beginners.
 
 ## Screenshots
 
+### ClickGui
+
 ![Screenshot](https://raw.githubusercontent.com/brandonlua/Client/135713654b9ed861011383af215245e1f45761fa/image.png)
+
+### Menu
+
+![Main Menu](https://raw.githubusercontent.com/brandonlua/Client/094ade95daf6c11dbe46ea2f2c0aa1a6d2b05ee4/menu.png)
 
 ## Code Contributions
 
