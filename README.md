@@ -1,6 +1,6 @@
 # Minecraft Client
 
-A **1.8.9** Minecraft client for hypixel ig
+A **1.8.9** Minecraft client for hypixel 
 
 ## Screenshots
 
