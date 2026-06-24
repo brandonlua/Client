@@ -171,24 +171,39 @@ public class MicrosoftOAuthTranslation {
             Map<String, String> params = new HashMap<>();
             if (query != null) {
                 for (String param : query.split("&")) {
-                    String[] pair = param.split("=");
-                    if (pair.length == 2) {
-                        params.put(pair[0], pair[1]);
-                    }
+                    // Split on the FIRST '=' only and URL-decode: OAuth values (and the
+                    // auth code itself) can legitimately contain '=' and encoded chars,
+                    // which the previous strict 2-part split silently dropped.
+                    int eq = param.indexOf('=');
+                    if (eq <= 0) continue;
+                    String key = urlDecode(param.substring(0, eq));
+                    String value = urlDecode(param.substring(eq + 1));
+                    params.put(key, value);
                 }
             }
             return params;
         }
 
+        private String urlDecode(String value) {
+            try {
+                return java.net.URLDecoder.decode(value, StandardCharsets.UTF_8.name());
+            } catch (Exception e) {
+                return value;
+            }
+        }
+
         private void handleCode(String code) {
+            Consumer<String> cb = callback;
+            if (cb == null) return;
+
             String response = Browser.postExternal("https://login.live.com/oauth20_token.srf",
                     "client_id=" + CLIENT_ID + "&code=" + code + "&client_secret=" + CLIENT_SECRET + "&grant_type=authorization_code&redirect_uri=http://localhost:" + PORT, false);
             AuthTokenResponse res = gson.fromJson(
                     response,
                     AuthTokenResponse.class);
 
-            if (res == null) callback.accept(null);
-            else callback.accept(res.refresh_token);
+            if (res == null) cb.accept(null);
+            else cb.accept(res.refresh_token);
         }
 
         private void writeText(HttpExchange req, String text) throws IOException {
@@ -251,9 +266,11 @@ public class MicrosoftOAuthTranslation {
         }
 
         private boolean hasGameOwnership() {
+            if (items == null) return false;
             boolean hasProduct = false;
             boolean hasGame = false;
             for (Item item : items) {
+                if (item == null || item.name == null) continue;
                 if (item.name.equals("product_minecraft")) hasProduct = true;
                 else if (item.name.equals("game_minecraft")) hasGame = true;
             }

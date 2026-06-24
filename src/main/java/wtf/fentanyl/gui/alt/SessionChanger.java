@@ -77,4 +77,15 @@ public class SessionChanger {
         Session session = new Session(username, username, "0", "legacy");
         setSession(session);
     }
+
+    /**
+     * Logs in directly from a Minecraft session (access) token, as done by the
+     * "tokenlogin" Forge mod: the username/uuid are resolved from the token and
+     * the live session is swapped in via reflection.
+     */
+    public void setUserToken(String username, String uuid, String token) {
+        this.auth.logOut();
+        Session session = new Session(username, uuid, token, "mojang");
+        setSession(session);
+    }
 }

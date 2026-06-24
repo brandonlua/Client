@@ -7,7 +7,7 @@ import wtf.fentanyl.client.modules.ModuleInfo;
 import wtf.fentanyl.client.modules.values.impl.BoolValue;
 import wtf.fentanyl.client.modules.values.impl.SliderValue;
 
-@ModuleInfo(name = "PostProcessing", category = Category.RENDER, enabled = true)
+@ModuleInfo(name = "PostProcessing", category = Category.RENDER)
 public class PostProcessing extends Module {
 
     public final BoolValue blur = new BoolValue("Blur", true, this);

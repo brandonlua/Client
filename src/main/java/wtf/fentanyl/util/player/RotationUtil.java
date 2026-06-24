@@ -18,17 +18,46 @@ public final class RotationUtil implements InstanceAccess {
     public static float currentYaw = 0.0f;
     private static float currentPitch = 0.0f;
     private static int rotTick;
+
     private static final Random theRandom = new Random();
     private static final float GCD_VALUE = getGCDValue();
 
     public static Rotation getSimpleRotations(EntityLivingBase target) {
-        double diffX = target.posX - mc.thePlayer.posX;
-        double diffY = target.posY + target.getEyeHeight() - (mc.thePlayer.posY + mc.thePlayer.getEyeHeight());
-        double diffZ = target.posZ - mc.thePlayer.posZ;
-        double dist = Math.sqrt(diffX * diffX + diffZ * diffZ);
+        // Guard against missing player/target so a null never propagates into KillAura.
+        if (mc.thePlayer == null) {
+            return new Rotation(0.0F, 0.0F);
+        }
+        if (target == null) {
+            return new Rotation(mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch);
+        }
 
-        float yaw = (float) Math.toDegrees(Math.atan2(diffZ, diffX)) - 90.0F;
-        float pitch = (float) -Math.toDegrees(Math.atan2(diffY, dist));
+        // Use the player's eye position as the origin of the look vector.
+        Vec3 eyes = mc.thePlayer.getPositionEyes(1.0F);
+
+        // Aim at the target's eye level, clamped inside its bounding box so the
+        // point we look at is always a valid spot on the hitbox.
+        AxisAlignedBB box = target.getEntityBoundingBox();
+        double targetX = (box.minX + box.maxX) / 2.0;
+        double targetZ = (box.minZ + box.maxZ) / 2.0;
+        double targetEyeY = target.posY + target.getEyeHeight();
+        double targetY = MathHelper.clamp_double(targetEyeY, box.minY, box.maxY);
+
+        // Proper deltas between the player's eyes and the aim point.
+        double dx = targetX - eyes.xCoord;
+        double dy = targetY - eyes.yCoord;
+        double dz = targetZ - eyes.zCoord;
+
+        double horizontalDist = Math.sqrt(dx * dx + dz * dz);
+
+        // atan2 maps the deltas to the correct yaw/pitch.
+        float targetYaw = (float) Math.toDegrees(Math.atan2(dz, dx)) - 90.0F;
+        float targetPitch = (float) -Math.toDegrees(Math.atan2(dy, horizontalDist));
+
+        // Wrap relative to the current rotation so the angle takes the shortest
+        // path instead of snapping a full revolution across the +/-180 boundary.
+        float yaw = mc.thePlayer.rotationYaw + MathHelper.wrapAngleTo180_float(targetYaw - mc.thePlayer.rotationYaw);
+        float pitch = mc.thePlayer.rotationPitch + MathHelper.wrapAngleTo180_float(targetPitch - mc.thePlayer.rotationPitch);
+        pitch = MathHelper.clamp_float(pitch, -90.0F, 90.0F);
 
         return applyGCD(yaw, pitch);
     }

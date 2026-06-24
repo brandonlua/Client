@@ -123,7 +123,7 @@ public class HUD extends Module {
     }
 
     private void renderDefaultWatermark(float x, float y) {
-        String name = Client.INSTANCE.getName();
+        String name = Client.INSTANCE.getName() + " " + Client.INSTANCE.getVersion();
         fr.drawString(name, x + 3, y + 2, Color.WHITE.getRGB());
     }
 

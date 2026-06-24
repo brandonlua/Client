@@ -55,6 +55,9 @@ public class GuiLoginMicrosoft extends GuiScreen {
         startY += 22;
         buttonList.add(new GuiButton(2, (int)(middleX - buttonWidth / 2f), (int)startY, (int)buttonWidth, 20, "Back"));
 
+        // Start from a clean status each time the screen opens.
+        statusString = null;
+
         Keyboard.enableRepeatEvents(true);
     }
 
@@ -83,13 +86,13 @@ public class GuiLoginMicrosoft extends GuiScreen {
 
         smallTitle.drawString("Microsoft Login", middleX - 143 / 2f + 3, middleY - 55 + 4.5f, -1);
 
-        if (!didTheThing) {
-            statusString = "Enter email & password";
-            statusFont.drawString(statusString, middleX - statusFont.getStringWidth(statusString) / 2f, middleY - 50 + 14, new Color(125, 125, 125).getRGB());
-        } else {
-            statusString = "Logged in: " + mc.getSession().getUsername();
-            statusFont.drawString(statusString, middleX - statusFont.getStringWidth(statusString) / 2f, middleY - 50 + 14, new Color(100, 255, 100).getRGB());
+        // Don't clobber an explicit status (progress/errors set by the async OAuth flow);
+        // only fall back to a default when nothing has been set yet.
+        if (statusString == null || statusString.isEmpty()) {
+            statusString = didTheThing ? "Logged in: " + mc.getSession().getUsername() : "Enter email & password";
         }
+        int statusColor = didTheThing ? new Color(100, 255, 100).getRGB() : new Color(125, 125, 125).getRGB();
+        statusFont.drawString(statusString, middleX - statusFont.getStringWidth(statusString) / 2f, middleY - 50 + 14, statusColor);
 
         username.drawTextBox();
         password.drawTextBox();
@@ -127,6 +130,7 @@ public class GuiLoginMicrosoft extends GuiScreen {
 
         if (didTheThing) {
             didTheThing = false;
+            statusString = null;
         }
 
         username.textboxKeyTyped(character, key);
@@ -152,33 +156,32 @@ public class GuiLoginMicrosoft extends GuiScreen {
     }
 
     private void handleOAuthLogin() {
-        statusString = "Awaiting for response for Microsoft login...";
-        CompletableFuture<Void> future = new CompletableFuture<>();
+        // Runs the whole OAuth flow asynchronously. Blocking the client thread here
+        // (the old future.get()) froze the entire game until the browser login finished
+        // and hid every status update, so we let the callback drive the state instead.
+        statusString = "Awaiting response from Microsoft login...";
+        didTheThing = false;
 
         MicrosoftOAuthTranslation.getRefreshToken(refreshToken -> {
-            if (refreshToken != null) {
-                MicrosoftOAuthTranslation.LoginData login = MicrosoftOAuthTranslation.login(refreshToken);
-                if (login.isGood()) {
-                    setSession(new Session(login.username, login.uuid, login.mcToken, "microsoft"));
-                    saveOAuthAltToFile(login.username, login.newRefreshToken);
-                    didTheThing = true;
-                } else {
-                    statusString = "Failed to login with Microsoft OAuth";
-                    didTheThing = false;
-                }
-                future.complete(null);
-            } else {
+            if (refreshToken == null) {
                 statusString = "Failed to get refresh token";
                 didTheThing = false;
-                future.complete(null);
+                return;
+            }
+
+            statusString = "Authenticating with Minecraft services...";
+
+            MicrosoftOAuthTranslation.LoginData login = MicrosoftOAuthTranslation.login(refreshToken);
+            if (login != null && login.isGood()) {
+                setSession(new Session(login.username, login.uuid, login.mcToken, "microsoft"));
+                saveOAuthAltToFile(login.username, login.newRefreshToken);
+                statusString = "Logged in: " + login.username;
+                didTheThing = true;
+            } else {
+                statusString = "Failed to login with Microsoft OAuth";
+                didTheThing = false;
             }
         });
-
-        try {
-            future.get();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     private void setSession(Session session) {
@@ -246,15 +249,28 @@ public class GuiLoginMicrosoft extends GuiScreen {
     }
 
     public static Session createMsSession() {
-        statusString = "Awaiting for response for Microsoft login...";
+        statusString = "Awaiting response from Microsoft login...";
         CompletableFuture<Session> future = new CompletableFuture<>();
         MicrosoftOAuthTranslation.getRefreshToken(refreshToken -> {
-            if (refreshToken != null) {
-                System.out.println("Refresh token: " + refreshToken);
-                MicrosoftOAuthTranslation.LoginData login = MicrosoftOAuthTranslation.login(refreshToken);
+            // Always complete the future, otherwise join() below would block forever.
+            if (refreshToken == null) {
+                future.complete(null);
+                return;
+            }
+            MicrosoftOAuthTranslation.LoginData login = MicrosoftOAuthTranslation.login(refreshToken);
+            if (login != null && login.isGood()) {
                 future.complete(new Session(login.username, login.uuid, login.mcToken, "microsoft"));
+            } else {
+                future.complete(null);
             }
         });
-        return future.join();
+
+        try {
+            // Bound the wait so a stalled browser/login can never hang the caller indefinitely.
+            return future.get(5, java.util.concurrent.TimeUnit.MINUTES);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

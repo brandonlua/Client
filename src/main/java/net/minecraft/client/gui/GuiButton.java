@@ -73,34 +73,40 @@ public class GuiButton extends Gui
             CFontRenderer fontRenderer = FontProcess.getFont("sans");
 
             int textWidth = fontRenderer.getStringWidth(this.displayString);
-            int textX = this.xPosition + (this.width - textWidth) / 2;
             int textY = this.yPosition + (this.height - fontRenderer.FONT_HEIGHT) / 2;
 
-            boolean isMouseOverText = mouseX >= textX - 4 && mouseY >= textY - 4 &&
-                    mouseX < textX + textWidth + 8 && mouseY < textY + fontRenderer.FONT_HEIGHT + 8;
+            this.hovered = mouseX >= this.xPosition && mouseY >= this.yPosition &&
+                    mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
 
             GlStateManager.enableBlend();
             GlStateManager.blendFunc(770, 771);
 
-            Color gradientColor = RenderUtil.interpolateColorsBackAndForth(15, 75, PRIMARY_COLOR, SECONDARY_COLOR, false);
+            // Visible rounded background panel so buttons are easy to see.
+            int bgAlpha = !this.enabled ? 70 : (this.hovered ? 160 : 110);
+            RenderUtil.drawRoundedRect(this.xPosition, this.yPosition, this.width, this.height, 4,
+                    new Color(22, 22, 30, bgAlpha));
 
-            int textColor = isMouseOverText ? gradientColor.getRGB() : new Color(255, 255, 255).getRGB();
-            fontRenderer.drawCenteredString(this.displayString,
-                    this.xPosition + this.width / 2,
-                    this.yPosition + (this.height - 8) / 2,
-                    textColor);
-
-            if (isMouseOverText) {
+            if (this.hovered && this.enabled) {
                 hoverAnimation.setDirection(Direction.FORWARDS);
             } else {
                 hoverAnimation.setDirection(Direction.BACKWARDS);
             }
 
+            Color accent = RenderUtil.interpolateColorsBackAndForth(15, 75, PRIMARY_COLOR, SECONDARY_COLOR, false);
+
+            int textColor = !this.enabled ? new Color(140, 140, 145).getRGB()
+                    : (this.hovered ? accent.getRGB() : new Color(225, 225, 230).getRGB());
+            fontRenderer.drawCenteredString(this.displayString,
+                    this.xPosition + this.width / 2,
+                    this.yPosition + (this.height - 8) / 2,
+                    textColor);
+
             int highlightHeight = 1;
             int highlightY = textY + fontRenderer.FONT_HEIGHT + 3;
             float animWidth = (float) ((textWidth + 8) * hoverAnimation.getOutput());
 
-            RenderUtil.drawRoundedRect(textX - 4, highlightY, animWidth, highlightHeight, 1, new Color(255, 255, 255));
+            RenderUtil.drawRoundedRect(this.xPosition + this.width / 2f - animWidth / 2f, highlightY,
+                    animWidth, highlightHeight, 1, accent);
 
             this.mouseDragged(mc, mouseX, mouseY);
         }

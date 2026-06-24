@@ -39,17 +39,30 @@ public class ModuleButton {
         return animation;
     }
 
+    private HUD getHud() {
+        if (Client.INSTANCE == null || Client.INSTANCE.getModuleManager() == null) {
+            return null;
+        }
+        return (HUD) Client.INSTANCE.getModuleManager().getModule("HUD");
+    }
+
     private CFontRenderer getFont() {
-        HUD hud = (HUD) Client.INSTANCE.getModuleManager().getModule("HUD");
+        HUD hud = getHud();
         return hud != null ? hud.fr : null;
     }
 
     private Color getThemeColor() {
-        HUD hud = (HUD) Client.INSTANCE.getModuleManager().getModule("HUD");
-        return hud != null ? hud.theme.get() : new Color(255, 50, 50);
+        HUD hud = getHud();
+        if (hud != null && hud.theme != null && hud.theme.get() != null) {
+            return hud.theme.get();
+        }
+        return new Color(255, 50, 50);
     }
 
     private boolean isBlurOn() {
+        if (Client.INSTANCE == null || Client.INSTANCE.getModuleManager() == null) {
+            return false;
+        }
         PostProcessing pp = (PostProcessing) Client.INSTANCE.getModuleManager().getModule("PostProcessing");
         return pp != null && pp.isToggled() && pp.blur.get();
     }

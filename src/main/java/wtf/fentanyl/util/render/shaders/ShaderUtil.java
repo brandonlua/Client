@@ -426,7 +426,7 @@ public class ShaderUtil implements InstanceAccess {
 
         float fbm(vec2 p) {
             float v = 0.0; float a = 0.5;
-            for (int i = 0; i < 5; i++) { v += a * noise(p); p *= 2.1; a *= 0.5; }
+            for (int i = 0; i < 3; i++) { v += a * noise(p); p *= 2.1; a *= 0.5; }
             return v;
         }
 
@@ -441,54 +441,32 @@ public class ShaderUtil implements InstanceAccess {
         void mainImage(out vec4 fragColor, in vec2 fragCoord) {
             vec2 uv = (fragCoord - 0.5 * RESOLUTION.xy) / RESOLUTION.y;
             vec2 uv0 = uv;
-            float t = TIME * 0.18;
+            float t = TIME * 0.15;
 
-            vec2 warp = vec2(fbm(uv + t + vec2(1.7, 9.2)), fbm(uv + t + vec2(8.3, 2.8)));
-            uv += warp * 0.35;
+            // Lightweight single-sample domain warp + nebula.
+            float w = fbm(uv * 1.5 + t);
+            uv += vec2(w, w * 0.6) * 0.25;
 
-            float base = fbm(uv * 2.5 + t);
-            float base2 = fbm(uv * 4.0 - t * 0.7 + warp);
-            float nebula = base * 0.6 + base2 * 0.4;
-
+            float nebula = fbm(uv * 2.5 + t);
             vec3 col = palette(nebula + t * 0.1);
-            col += palette(base2 * 1.2 - t * 0.05) * 0.4;
 
-            float rays = 0.0;
-            for (int i = 0; i < 6; i++) {
-                float fi = float(i) / 6.0;
-                float angle = fi * PI + t * 0.3 + noise(vec2(fi * 3.7, t * 0.1)) * 0.8;
-                vec2 dir = vec2(cos(angle), sin(angle));
-                float beam = pow(max(0.0, dot(normalize(uv0), dir)), 12.0) * 0.5;
-                beam *= 1.0 / (1.0 + length(uv0) * 4.0);
-                rays += beam;
-            }
-            col += vec3(0.5, 0.2, 1.0) * rays * 1.2;
+            // Single subtle star layer (cheap).
+            float scale = 70.0;
+            vec2 sg = floor(uv0 * scale);
+            float s = hash(sg);
+            float cellStar = step(0.95, s);
+            vec2 sp = fract(uv0 * scale) - 0.5;
+            float d = length(sp);
+            float glow = 0.06;
+            float starShape = exp(-d * d / (glow * glow));
+            float twinkle = 0.6 + 0.4 * sin(TIME * 2.0 + s * TAU);
+            col += vec3(0.95, 0.90, 1.0) * cellStar * starShape * twinkle * 1.2;
 
-            float stars = 0.0;
-            for (int i = 0; i < 3; i++) {
-                float scale = mix(40.0, 120.0, float(i) / 2.0);
-                vec2 sg = floor(uv0 * scale);
-                float s = hash(sg + float(i) * 7.3);
-                float threshold = 0.92;
-                float cellStar = step(threshold, s);
-                vec2 sp = fract(uv0 * scale) - 0.5;
-                float d = length(sp);
-                float sz = (s - threshold) / (1.0 - threshold);
-                float glow = sz * 0.08;
-                float starShape = exp(-d * d / (glow * glow + 0.0001));
-                float twinkle = 0.5 + 0.5 * sin(TIME * (1.5 + s * 3.0) + s * TAU);
-                stars += cellStar * starShape * twinkle * 1.8;
-            }
-            col += vec3(0.95, 0.90, 1.0) * stars;
-
-            float scan = 0.03 * sin(fragCoord.y * 0.8 + TIME * 2.0) * sin(fragCoord.y * 0.13);
-            col += vec3(scan * 0.3, 0.0, scan * 0.6);
-
+            // Vignette.
             float r = length(uv0);
-            col *= (1.0 - smoothstep(0.4, 1.1, r)) * (1.0 - smoothstep(0.0, 0.15, r) * 0.25);
+            col *= 1.0 - smoothstep(0.4, 1.1, r);
 
-            col = pow(max(col, 0.0), vec3(0.9));
-            fragColor = vec4(col, 1.0);
+            fragColor = vec4(max(col, 0.0), 1.0);
         }
 
         void main(void) {

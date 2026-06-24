@@ -481,7 +481,11 @@ public class SoundManager
         {
             synchronized (SoundSystemConfig.THREAD_SYNC)
             {
-                if (this.soundLibrary == null)
+                // soundLibrary can be non-null but only partially initialized when the
+                // OpenAL backend fails to start (e.g. LWJGL3 / no audio device), in which
+                // case getSources() returns null. Guard it so a missing sound system
+                // degrades to silence instead of crashing the game (e.g. on button clicks).
+                if (this.soundLibrary == null || this.soundLibrary.getSources() == null)
                 {
                     return false;
                 }

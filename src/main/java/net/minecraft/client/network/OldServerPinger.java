@@ -242,7 +242,10 @@ public class OldServerPinger
 
                             if (short1 == 255)
                             {
-                                String s = new String(p_channelRead0_2_.readBytes(p_channelRead0_2_.readShort() * 2).array(), Charsets.UTF_16BE);
+                                int length = p_channelRead0_2_.readShort() * 2;
+                                byte[] bytes = new byte[length];
+                                p_channelRead0_2_.readBytes(bytes);
+                                String s = new String(bytes, Charsets.UTF_16BE);
                                 String[] astring = (String[])Iterables.toArray(OldServerPinger.PING_RESPONSE_SPLITTER.split(s), String.class);
 
                                 if ("\u00a71".equals(astring[0]))

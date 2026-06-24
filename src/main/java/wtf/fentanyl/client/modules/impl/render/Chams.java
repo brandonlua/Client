@@ -41,7 +41,13 @@ public class Chams extends Module {
             glDisable(GL_LIGHTING);
         glEnable(GL_POLYGON_OFFSET_FILL);
         glPolygonOffset(0.0F, -1000000.0F);
-        OpenGlHelper.setLightmapTextureCoords(1, 240.0F, 240.0F);
+        // Must pass the real lightmap texture unit enum (GL_TEXTURE1 / 33985), not a raw
+        // "1". A bare 1 is an invalid texture-unit argument to glMultiTexCoord2f and makes
+        // the GPU driver crash with an access violation when entities are rendered.
+        // Guard against an uninitialized unit (multitexture not yet ready) for the same reason.
+        if (OpenGlHelper.lightmapTexUnit != 0) {
+            OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240.0F, 240.0F);
+        }
         glDepthMask(false);
         RenderUtil.color(occludedColor);
     }

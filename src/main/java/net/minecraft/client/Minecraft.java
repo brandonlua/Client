@@ -170,6 +170,7 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.*;
 import org.lwjgl.util.glu.GLU;
+import wtf.fentanyl.gui.GuiSplash;
 
 public class Minecraft implements IThreadListener, IPlayerUsage
 {
@@ -480,7 +481,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
         }
         else
         {
-            this.displayGuiScreen(new GuiMainMenu());
+            this.displayGuiScreen(new GuiSplash());
         }
 
         this.renderEngine.deleteTexture(this.mojangLogo);

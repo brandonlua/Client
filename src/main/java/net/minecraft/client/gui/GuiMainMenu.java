@@ -454,7 +454,7 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
         MainMenu.draw(initTime);
         GlStateManager.enableAlpha();
 
-        wtf.fentanyl.client.processes.FontProcess.getScaledFont("sans", 3.0f).drawCenteredString("Fentanyl", this.width / 2, 35, -1);
+        wtf.fentanyl.client.processes.FontProcess.getScaledFont("sans", 3.0f).drawCenteredString("Itis", this.width / 2, 35, -1);
 
         Tessellator tessellator = Tessellator.getInstance();
         WorldRenderer worldrenderer = tessellator.getWorldRenderer();
@@ -529,6 +529,13 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
         if (this.modUpdateNotification != null)
         {
             this.modUpdateNotification.drawScreen(mouseX, mouseY, partialTicks);
+        }
+
+        long elapsed = System.currentTimeMillis() - this.initTime;
+        if (elapsed < 650L)
+        {
+            int alpha = (int)(255.0F * (1.0F - (float)elapsed / 650.0F));
+            drawRect(0, 0, this.width, this.height, (alpha << 24));
         }
     }
 

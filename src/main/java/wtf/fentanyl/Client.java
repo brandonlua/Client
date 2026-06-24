@@ -33,7 +33,8 @@ import org.lwjgl.input.Keyboard;
 public enum Client implements Subscriber {
     INSTANCE;
 
-    public String name = "Fentanyl";
+    public String name = "Itis";
+    public String version = "dev 1.1";
 
     public final Minecraft mc = Minecraft.getMinecraft();
     private ModuleManager moduleManager;
@@ -55,7 +56,7 @@ public enum Client implements Subscriber {
     public void init() {
         fr = new CFontRenderer("arial", 30, 0, true, true);
         BUS.subscribe(this);
-        Display.setTitle(name);
+        Display.setTitle(name + " " + version);
 
         moduleManager = new ModuleManager();
         targetProcess = new TargetProcess();

@@ -42,24 +42,45 @@ public class DropdownGUI extends GuiScreen {
     public DropdownGUI() {
         float xOffset = 5;
         for (Category category : Category.values()) {
-            panels.put(category, new CategoryPanel(category, xOffset, 5));
+            try {
+                panels.put(category, new CategoryPanel(category, xOffset, 5));
+            } catch (Exception ignored) {
+                // A single failing panel must never prevent the GUI from opening.
+            }
             xOffset += 130 + 5;
         }
 
-        HUD hud = (HUD) Client.INSTANCE.getModuleManager().getModule(HUD.class);
-        String fontName = "Arial";
+        String fontName = resolveFontName();
+        this.font = buildFont(fontName);
+        this.currentFont = fontName;
+    }
+
+    private String resolveFontName() {
+        Module hud = Client.INSTANCE != null && Client.INSTANCE.getModuleManager() != null
+                ? Client.INSTANCE.getModuleManager().getModule(HUD.class)
+                : null;
         if (hud != null) {
             Value fontValue = hud.getValues().stream()
                     .filter(v -> v.getName().equals("Font"))
                     .findFirst()
                     .orElse(null);
             if (fontValue instanceof ModeValue) {
-                ModeValue fontMode = (ModeValue) fontValue;
-                fontName = fontMode.get();
+                String name = ((ModeValue) fontValue).get();
+                if (name != null && !name.isEmpty()) {
+                    return name;
+                }
             }
         }
-        this.font = new CFontRenderer(new Font(fontName, Font.PLAIN, 18), true, true);
-        this.currentFont = fontName;
+        return "Arial";
+    }
+
+    private CFontRenderer buildFont(String fontName) {
+        try {
+            return new CFontRenderer(new Font(fontName, Font.PLAIN, 18), true, true);
+        } catch (Exception e) {
+            // Guarantee a usable font so rendering can never NPE on a null renderer.
+            return new CFontRenderer(new Font(Font.SANS_SERIF, Font.PLAIN, 18), true, true);
+        }
     }
 
     @Override
@@ -69,34 +90,29 @@ public class DropdownGUI extends GuiScreen {
     }
 
     private void updateThemeColor() {
+        if (Client.INSTANCE == null || Client.INSTANCE.getModuleManager() == null) {
+            return;
+        }
         Module hudModule = Client.INSTANCE.getModuleManager().getModule("HUD");
         if (hudModule != null) {
-            ColorValue themeValue = (ColorValue) hudModule.getValues().stream()
+            Value themeValue = hudModule.getValues().stream()
                     .filter(v -> v.getName().equals("Theme"))
                     .findFirst()
                     .orElse(null);
-            if (themeValue != null) {
-                cachedThemeColor = themeValue.get();
+            if (themeValue instanceof ColorValue) {
+                Color color = ((ColorValue) themeValue).get();
+                if (color != null) {
+                    cachedThemeColor = color;
+                }
             }
         }
     }
 
     private void updateFont() {
-        HUD hud = (HUD) Client.INSTANCE.getModuleManager().getModule(HUD.class);
-        String fontName = "Arial";
-        if (hud != null) {
-            Value fontValue = hud.getValues().stream()
-                    .filter(v -> v.getName().equals("Font"))
-                    .findFirst()
-                    .orElse(null);
-            if (fontValue instanceof ModeValue) {
-                ModeValue fontMode = (ModeValue) fontValue;
-                fontName = fontMode.get();
-            }
-        }
+        String fontName = resolveFontName();
 
         if (!fontName.equals(currentFont) || font == null) {
-            this.font = new CFontRenderer(new Font(fontName, Font.PLAIN, 18), true, true);
+            this.font = buildFont(fontName);
             currentFont = fontName;
         }
     }
@@ -105,14 +121,30 @@ public class DropdownGUI extends GuiScreen {
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         super.drawScreen(mouseX, mouseY, partialTicks);
 
+        // Make sure the font and theme are valid before rendering anything.
+        if (font == null) {
+            updateFont();
+        }
+        if (cachedThemeColor == null) {
+            cachedThemeColor = Color.WHITE;
+        }
+
         RenderUtil.drawRect(0, 0, width, height, new Color(0, 0, 0, 150));
 
         for (CategoryPanel panel : panels.values()) {
+            if (panel == null) {
+                continue;
+            }
             if (dragging && draggedPanel == panel) {
                 panel.setPosition(mouseX - dragOffsetX, mouseY - dragOffsetY);
             }
 
-            panel.render(mouseX, mouseY, font, cachedThemeColor, listeningModule, expandedMode, colorPicker, editingText);
+            try {
+                panel.render(mouseX, mouseY, font, cachedThemeColor, listeningModule, expandedMode, colorPicker, editingText);
+            } catch (Exception e) {
+                // Never let a render-time error crash the game while the GUI is open.
+                e.printStackTrace();
+            }
         }
     }
 

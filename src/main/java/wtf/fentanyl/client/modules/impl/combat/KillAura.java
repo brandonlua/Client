@@ -9,6 +9,7 @@ import wtf.fentanyl.client.modules.values.impl.ColorValue;
 import wtf.fentanyl.client.modules.values.impl.ModeValue;
 import wtf.fentanyl.client.modules.values.impl.SliderValue;
 import wtf.fentanyl.event.impl.Event3D;
+import wtf.fentanyl.event.impl.UpdateEvent;
 import wtf.fentanyl.event.impl.game.player.KeepSprintEvent;
 import wtf.fentanyl.event.impl.game.player.MotionEvent;
 import wtf.fentanyl.event.impl.game.player.SprintEvent;
@@ -46,6 +47,7 @@ public class KillAura extends Module {
     public final BoolValue animals = new BoolValue("Animals", false, this);
     public final BoolValue monsters = new BoolValue("Monsters", false, this);
     public final BoolValue raytrace = new BoolValue("Raytrace", true, this);
+    public final BoolValue angleLock = new BoolValue("AngleLock", true, this);
     public final BoolValue noSwing = new BoolValue("No Swing", false, this);
     public final BoolValue sprintReset = new BoolValue("Sprint Reset", true, this);
     public final BoolValue keepSprint = new BoolValue("Keep Sprint", false, this);
@@ -76,6 +78,23 @@ public class KillAura extends Module {
     });
 
     @Subscribe
+    private final Listener<UpdateEvent> updateListener = new Listener<>(event -> {
+        // AngleLock: point the player's actual view at the target in every direction -
+        // yaw (left/right) and pitch (up/down). This runs before the tick's movement and
+        // body update, so vanilla rotates the character's orientation to follow the view
+        // with its natural lag, exactly like normal gameplay. Because we move the real
+        // view, the look packet automatically sends this rotation too (no desync).
+        if (Client.INSTANCE.targetProcess.target != null && angleLock.get()) {
+            rots = RotationUtil.getSimpleRotations(Client.INSTANCE.targetProcess.target);
+            mc.thePlayer.rotationYaw = rots.yaw;
+            mc.thePlayer.rotationPitch = rots.pitch;
+            mc.thePlayer.rotationYawHead = rots.yaw;
+        } else {
+            rots = null;
+        }
+    });
+
+    @Subscribe
     private final Listener<MotionEvent> motionListener = new Listener<>(event -> {
         if (event.getState() == MotionEvent.State.PRE) {
             double clamp = Math.max(1, Math.min(mc.getDebugFPS() / 30.0, 9999));
@@ -86,12 +105,6 @@ public class KillAura extends Module {
 
             if (mc.thePlayer.ticksExisted % 20 == 0) {
                 rangeFix = (int) (attackRange.get() + Math.random() * 0.4);
-            }
-
-            if (Client.INSTANCE.targetProcess.target != null) {
-                rots = RotationUtil.getSimpleRotations(Client.INSTANCE.targetProcess.target);
-                event.setYaw(rots.yaw);
-                event.setPitch(rots.pitch);
             }
         }
     });
@@ -158,13 +171,12 @@ public class KillAura extends Module {
                     mc.thePlayer.sendQueue.addToSendQueue(new C0APacketAnimation());
                 }
 
-                switch (swingMode.get()) {
-                    case "Legit":
-                        mc.clickMouse();
-                        break;
-                    case "Blatant":
-                        mc.playerController.attackEntity(mc.thePlayer, Client.INSTANCE.targetProcess.target);
-                        break;
+                // Attack the locked target directly so the silent rotation actually lands.
+                // (mc.clickMouse() raytraces from the free-look view, which would miss when
+                // the player isn't physically looking at the target.)
+                EntityLivingBase target = Client.INSTANCE.targetProcess.target;
+                if (target != null) {
+                    mc.playerController.attackEntity(mc.thePlayer, target);
                 }
 
                 performBlock(true);
@@ -430,6 +442,7 @@ public class KillAura extends Module {
     @Override
     public void onDisabled() {
         Client.BUS.unsubscribe(this);
+        rots = null;
         if (isBlocking) {
             stopVanillaBlock();
         }

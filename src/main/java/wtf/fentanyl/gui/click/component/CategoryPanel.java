@@ -51,20 +51,36 @@ public class CategoryPanel {
         this.category = category;
         this.x = x;
         this.y = y;
-        for (Module module : Client.INSTANCE.getModuleManager().getModules(category)) {
-            moduleButtons.add(new ModuleButton(module));
+        if (Client.INSTANCE != null && Client.INSTANCE.getModuleManager() != null) {
+            for (Module module : Client.INSTANCE.getModuleManager().getModules(category)) {
+                if (module != null) {
+                    moduleButtons.add(new ModuleButton(module));
+                }
+            }
         }
     }
 
     private CFontRenderer getFont(CFontRenderer fallback) {
+        if (Client.INSTANCE == null || Client.INSTANCE.getModuleManager() == null) {
+            return fallback;
+        }
         HUD hud = (HUD) Client.INSTANCE.getModuleManager().getModule("HUD");
         return hud != null && hud.fr != null ? hud.fr : fallback;
     }
 
     public void render(int mouseX, int mouseY, CFontRenderer font, Color themeColor, Module listeningModule, ModeValue expandedMode, ColorPicker colorPicker, TextValue editingText) {
         CFontRenderer currentFont = getFont(font);
+        if (currentFont == null) {
+            // Without a font there is nothing safe to draw; skip this frame for the panel.
+            return;
+        }
+        if (themeColor == null) {
+            themeColor = Color.WHITE;
+        }
 
-        PostProcessing postProcessing = (PostProcessing) Client.INSTANCE.getModuleManager().getModule("PostProcessing");
+        PostProcessing postProcessing = Client.INSTANCE != null && Client.INSTANCE.getModuleManager() != null
+                ? (PostProcessing) Client.INSTANCE.getModuleManager().getModule("PostProcessing")
+                : null;
 
         boolean ppOn = postProcessing != null && postProcessing.isToggled();
         boolean blurOn = ppOn && postProcessing.blur.get();

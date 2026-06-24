@@ -57,10 +57,10 @@ public class PingResponseHandler extends ChannelInboundHandlerAdapter
                     default:
                         boolean flag1 = bytebuf.readUnsignedByte() == 1;
                         flag1 = flag1 & bytebuf.readUnsignedByte() == 250;
-                        flag1 = flag1 & "MC|PingHost".equals(new String(bytebuf.readBytes(bytebuf.readShort() * 2).array(), Charsets.UTF_16BE));
+                        flag1 = flag1 & "MC|PingHost".equals(new String(readBytes(bytebuf, bytebuf.readShort() * 2), Charsets.UTF_16BE));
                         int j = bytebuf.readUnsignedShort();
                         flag1 = flag1 & bytebuf.readUnsignedByte() >= 73;
-                        flag1 = flag1 & 3 + bytebuf.readBytes(bytebuf.readShort() * 2).array().length + 4 == j;
+                        flag1 = flag1 & 3 + readBytes(bytebuf, bytebuf.readShort() * 2).length + 4 == j;
                         flag1 = flag1 & bytebuf.readInt() <= 65535;
                         flag1 = flag1 & bytebuf.readableBytes() == 0;
 
@@ -106,6 +106,13 @@ public class PingResponseHandler extends ChannelInboundHandlerAdapter
     private void writeAndFlush(ChannelHandlerContext ctx, ByteBuf data)
     {
         ctx.pipeline().firstContext().writeAndFlush(data).addListener(ChannelFutureListener.CLOSE);
+    }
+
+    private static byte[] readBytes(ByteBuf buf, int length)
+    {
+        byte[] bytes = new byte[length];
+        buf.readBytes(bytes);
+        return bytes;
     }
 
     private ByteBuf getStringBuffer(String string)

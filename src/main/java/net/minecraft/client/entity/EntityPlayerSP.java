@@ -168,23 +168,28 @@ public class EntityPlayerSP extends AbstractClientPlayer {
             double d0 = this.posX - this.lastReportedPosX;
             double d1 = this.getEntityBoundingBox().minY - this.lastReportedPosY;
             double d2 = this.posZ - this.lastReportedPosZ;
-            double d3 = (double) (this.rotationYaw - this.lastReportedYaw);
-            double d4 = (double) (this.rotationPitch - this.lastReportedPitch);
+            // Use the (possibly module-modified) rotation from the MotionEvent for the
+            // packets sent to the server. The rendered view keeps using this.rotationYaw,
+            // so modules like KillAura can aim silently without snapping the camera.
+            float yaw = preUpdate.getYaw();
+            float pitch = preUpdate.getPitch();
+            double d3 = (double) (yaw - this.lastReportedYaw);
+            double d4 = (double) (pitch - this.lastReportedPitch);
             boolean flag2 = d0 * d0 + d1 * d1 + d2 * d2 > 9.0E-4D || this.positionUpdateTicks >= 20;
             boolean flag3 = d3 != 0.0D || d4 != 0.0D;
 
             if (this.ridingEntity == null) {
                 if (flag2 && flag3) {
-                    this.sendQueue.addToSendQueue(new C03PacketPlayer.C06PacketPlayerPosLook(this.posX, this.getEntityBoundingBox().minY, this.posZ, this.rotationYaw, this.rotationPitch, this.onGround));
+                    this.sendQueue.addToSendQueue(new C03PacketPlayer.C06PacketPlayerPosLook(this.posX, this.getEntityBoundingBox().minY, this.posZ, yaw, pitch, this.onGround));
                 } else if (flag2) {
                     this.sendQueue.addToSendQueue(new C03PacketPlayer.C04PacketPlayerPosition(this.posX, this.getEntityBoundingBox().minY, this.posZ, this.onGround));
                 } else if (flag3) {
-                    this.sendQueue.addToSendQueue(new C03PacketPlayer.C05PacketPlayerLook(this.rotationYaw, this.rotationPitch, this.onGround));
+                    this.sendQueue.addToSendQueue(new C03PacketPlayer.C05PacketPlayerLook(yaw, pitch, this.onGround));
                 } else {
                     this.sendQueue.addToSendQueue(new C03PacketPlayer(this.onGround));
                 }
             } else {
-                this.sendQueue.addToSendQueue(new C03PacketPlayer.C06PacketPlayerPosLook(this.motionX, -999.0D, this.motionZ, this.rotationYaw, this.rotationPitch, this.onGround));
+                this.sendQueue.addToSendQueue(new C03PacketPlayer.C06PacketPlayerPosLook(this.motionX, -999.0D, this.motionZ, yaw, pitch, this.onGround));
                 flag2 = false;
             }
 
@@ -198,8 +203,8 @@ public class EntityPlayerSP extends AbstractClientPlayer {
             }
 
             if (flag3) {
-                this.lastReportedYaw = this.rotationYaw;
-                this.lastReportedPitch = this.rotationPitch;
+                this.lastReportedYaw = yaw;
+                this.lastReportedPitch = pitch;
             }
         }
     }
@@ -653,6 +658,29 @@ public class EntityPlayerSP extends AbstractClientPlayer {
     @Override
     public void moveEntity(double x, double y, double z) {
         super.moveEntity(x, y, z);
+    }
+
+    @Override
+    public void moveFlying(float strafe, float forward, float friction) {
+        float yaw = this.rotationYaw;
+
+        float f = strafe * strafe + forward * forward;
+
+        if (f >= 1.0E-4F) {
+            f = MathHelper.sqrt_float(f);
+
+            if (f < 1.0F) {
+                f = 1.0F;
+            }
+
+            f = friction / f;
+            strafe = strafe * f;
+            forward = forward * f;
+            float f1 = MathHelper.sin(yaw * (float)Math.PI / 180.0F);
+            float f2 = MathHelper.cos(yaw * (float)Math.PI / 180.0F);
+            this.motionX += (double)(strafe * f2 - forward * f1);
+            this.motionZ += (double)(forward * f2 + strafe * f1);
+        }
     }
 
     public boolean isMoving() {
