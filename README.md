@@ -1,6 +1,6 @@
 # Minecraft Client
 
-A **1.8.9** Minecraft client built from scratch, for Java beginners.
+A **1.8.9** Minecraft client for hypixel ig
 
 ## Screenshots
 
