@@ -5,6 +5,7 @@ import wtf.fentanyl.event.impl.UpdateEvent;
 import wtf.fentanyl.event.impl.game.player.MotionEvent;
 import wtf.fentanyl.event.impl.game.player.MoveEvent;
 import wtf.fentanyl.event.impl.game.player.SlowdownEvent;
+import wtf.fentanyl.util.player.RotationUtil;
 import me.zero.alpine.bus.EventManager;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
@@ -206,6 +207,30 @@ public class EntityPlayerSP extends AbstractClientPlayer {
                 this.lastReportedYaw = yaw;
                 this.lastReportedPitch = pitch;
             }
+        }
+    }
+
+    @Override
+    public void moveEntityWithHeading(float strafe, float forward) {
+        // Move-fix for KillAura's silent aim. When armed, run the movement physics with
+        // the viewpoint yaw we send to the server (RotationUtil.moveFixYaw), but rotate the
+        // WASD inputs by (camera - viewpoint) first. The player still travels in the CAMERA
+        // direction (where they're looking), while the motion matches the rotation we send,
+        // so the server stays synchronized and doesn't set the player back. The camera yaw
+        // is restored immediately so the view stays free.
+        if (RotationUtil.moveFix) {
+            float cameraYaw = this.rotationYaw;
+            double theta = Math.toRadians(cameraYaw - RotationUtil.moveFixYaw);
+            float cos = (float) Math.cos(theta);
+            float sin = (float) Math.sin(theta);
+            float fixedStrafe = strafe * cos - forward * sin;
+            float fixedForward = strafe * sin + forward * cos;
+
+            this.rotationYaw = RotationUtil.moveFixYaw;
+            super.moveEntityWithHeading(fixedStrafe, fixedForward);
+            this.rotationYaw = cameraYaw;
+        } else {
+            super.moveEntityWithHeading(strafe, forward);
         }
     }
 

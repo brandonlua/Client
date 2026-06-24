@@ -26,6 +26,8 @@ import net.minecraft.network.play.client.C09PacketHeldItemChange;
 import net.minecraft.network.play.client.C0APacketAnimation;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.MathHelper;
+import net.minecraft.util.Vec3;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
@@ -61,6 +63,8 @@ public class KillAura extends Module {
     private boolean fakeBlockState = false;
     private int blockTick = 0;
     private Rotation rots;
+    private float aimYaw;
+    private float aimPitch;
     private float alpha = 0;
 
     @Subscribe
@@ -79,18 +83,57 @@ public class KillAura extends Module {
 
     @Subscribe
     private final Listener<UpdateEvent> updateListener = new Listener<>(event -> {
-        // AngleLock: point the player's actual view at the target in every direction -
-        // yaw (left/right) and pitch (up/down). This runs before the tick's movement and
-        // body update, so vanilla rotates the character's orientation to follow the view
-        // with its natural lag, exactly like normal gameplay. Because we move the real
-        // view, the look packet automatically sends this rotation too (no desync).
-        if (Client.INSTANCE.targetProcess.target != null && angleLock.get()) {
-            rots = RotationUtil.getSimpleRotations(Client.INSTANCE.targetProcess.target);
-            mc.thePlayer.rotationYaw = rots.yaw;
-            mc.thePlayer.rotationPitch = rots.pitch;
-            mc.thePlayer.rotationYawHead = rots.yaw;
+        // AngleLock (silent aim): the first-person camera and the viewpoint are decoupled
+        // (asynchronous) - the player keeps full, free mouse look while the VIEWPOINT is what
+        // locks onto the enemy. The viewpoint is eased smoothly toward the closest point of the
+        // target, quantised to the mouse-sensitivity step (GCD), and that one value drives the
+        // look packet, the body/head orientation and the movement physics. Movement travels in
+        // the CAMERA direction (where the player is actually looking) via the move-fix, so
+        // strafing around a target feels normal. Runs before the tick's movement so the
+        // move-fix picks up this viewpoint.
+        EntityLivingBase target = Client.INSTANCE.targetProcess.target;
+        if (target != null && angleLock.get()) {
+            // Aim at the closest point of the enemy's hitbox to the player's eyes (so the
+            // viewpoint locks onto the nearest part of the enemy, not a fixed centre).
+            Vec3 eyes = mc.thePlayer.getPositionEyes(1.0F);
+            Vec3 hit = RotationUtil.getBestHitVec(target);
+            double dx = hit.xCoord - eyes.xCoord;
+            double dy = hit.yCoord - eyes.yCoord;
+            double dz = hit.zCoord - eyes.zCoord;
+            double dist = Math.sqrt(dx * dx + dz * dz);
+            float targetYaw = (float) Math.toDegrees(Math.atan2(dz, dx)) - 90.0F;
+            float targetPitch = (float) -Math.toDegrees(Math.atan2(dy, dist));
+
+            // The viewpoint persists independently of the free camera. On the first tick of a
+            // lock it starts from the camera so it eases on smoothly instead of snapping.
+            boolean firstLock = rots == null;
+            if (firstLock) {
+                aimYaw = mc.thePlayer.rotationYaw;
+                aimPitch = mc.thePlayer.rotationPitch;
+            }
+            stepAimTowards(targetYaw, targetPitch);
+            broadcastAim(firstLock);
+        } else if (rots != null) {
+            // Releasing: ease the viewpoint smoothly back onto the free camera instead of
+            // snapping (a one-tick jump from the enemy back to the camera would spike the
+            // rotation speed). Keep the move-fix armed during the hand-off so movement still
+            // matches the rotation being sent, then drop the override once it has caught up.
+            float camYaw = mc.thePlayer.rotationYaw;
+            float camPitch = mc.thePlayer.rotationPitch;
+            stepAimTowards(camYaw, camPitch);
+            boolean caughtUp = Math.abs(MathHelper.wrapAngleTo180_float(camYaw - aimYaw)) < 2.0F
+                    && Math.abs(camPitch - aimPitch) < 2.0F;
+            if (caughtUp) {
+                rots = null;
+                RotationUtil.moveFix = false;
+                RotationUtil.silentPitchActive = false;
+            } else {
+                broadcastAim(false);
+            }
         } else {
             rots = null;
+            RotationUtil.moveFix = false;
+            RotationUtil.silentPitchActive = false;
         }
     });
 
@@ -105,6 +148,22 @@ public class KillAura extends Module {
 
             if (mc.thePlayer.ticksExisted % 20 == 0) {
                 rangeFix = (int) (attackRange.get() + Math.random() * 0.4);
+            }
+
+            // Silent aim: send the viewpoint (computed in the update listener) in the outgoing
+            // look packet while the camera the player controls stays free. Point the head at
+            // the viewpoint and let the body ease toward it with the natural ~75 deg lag, so
+            // the character turns just like vanilla as the viewpoint moves.
+            if (rots != null && angleLock.get()) {
+                event.setYaw(rots.yaw);
+                event.setPitch(rots.pitch);
+
+                mc.thePlayer.rotationYawHead = rots.yaw;
+                float ease = MathHelper.wrapAngleTo180_float(rots.yaw - mc.thePlayer.renderYawOffset);
+                mc.thePlayer.renderYawOffset += ease * 0.3F;
+                float headBody = MathHelper.wrapAngleTo180_float(rots.yaw - mc.thePlayer.renderYawOffset);
+                headBody = MathHelper.clamp_float(headBody, -75.0F, 75.0F);
+                mc.thePlayer.renderYawOffset = rots.yaw - headBody;
             }
         }
     });
@@ -154,8 +213,10 @@ public class KillAura extends Module {
 
     @Subscribe
     private final Listener<TickEvent> tickListener = new Listener<>(event -> {
+        // The viewpoint lifecycle (including easing back onto the camera when the target is
+        // dropped) is owned by the update listener now, so don't clear rots here - just skip
+        // attacking when there's nothing to hit.
         if (Client.INSTANCE.targetProcess.target == null) {
-            rots = null;
             return;
         }
 
@@ -188,6 +249,50 @@ public class KillAura extends Module {
     private long calculateAttackDelay() {
         long cps = (long) ((minCPS.get() + maxCPS.get()) / 2);
         return 1000 / cps;
+    }
+
+    // Ease the viewpoint one tick toward (targetYaw, targetPitch). The turn is a gentle
+    // fraction of the remaining angle - fast when far, slowing as it settles - with a per-tick
+    // speed cap and a little randomness that fades out as it settles, so the motion is smooth
+    // and hand-made rather than a robotic straight line, and never exceeds a human turn speed.
+    private void stepAimTowards(float targetYaw, float targetPitch) {
+        float yawDelta = MathHelper.wrapAngleTo180_float(targetYaw - aimYaw);
+        float pitchDelta = MathHelper.wrapAngleTo180_float(targetPitch - aimPitch);
+
+        // Lower fraction + cap = a softer, smoother glide onto the target.
+        float smooth = 0.18F + (float) (Math.random() * 0.07F);
+        yawDelta *= smooth;
+        pitchDelta *= smooth;
+
+        float maxYaw = 18.0F + (float) (Math.random() * 5.0F);
+        float maxPitch = 12.0F + (float) (Math.random() * 4.0F);
+        yawDelta = MathHelper.clamp_float(yawDelta, -maxYaw, maxYaw);
+        pitchDelta = MathHelper.clamp_float(pitchDelta, -maxPitch, maxPitch);
+
+        // Micro-jitter, scaled by how fast we're still moving, so it vanishes once locked on
+        // (keeps the glide from being a dead-straight line without adding visible trembling).
+        float settle = Math.min(1.0F, (Math.abs(yawDelta) + Math.abs(pitchDelta)) / 10.0F);
+        yawDelta += (float) (Math.random() - 0.5) * 0.3F * settle;
+        pitchDelta += (float) (Math.random() - 0.5) * 0.15F * settle;
+
+        aimYaw += yawDelta;
+        aimPitch = MathHelper.clamp_float(aimPitch + pitchDelta, -90.0F, 90.0F);
+    }
+
+    // Quantise the eased viewpoint to the mouse-sensitivity step (GCD) and publish it. The one
+    // quantised value feeds everything that must agree: the look packet (sent in the motion
+    // listener), the yaw the move-fix runs movement with so travel follows the free camera, and
+    // the pitch the local model is rendered at - so the camera stays free yet nothing desyncs.
+    private void broadcastAim(boolean firstLock) {
+        Rotation aim = RotationUtil.applyGCD(aimYaw, aimPitch);
+        rots = aim;
+
+        RotationUtil.prevSilentPitch = firstLock ? mc.thePlayer.rotationPitch : RotationUtil.silentPitch;
+        RotationUtil.silentPitch = aim.pitch;
+        RotationUtil.silentPitchActive = true;
+
+        RotationUtil.moveFix = true;
+        RotationUtil.moveFixYaw = aim.yaw;
     }
 
     private void performBlock(boolean stop) {
@@ -433,6 +538,8 @@ public class KillAura extends Module {
         rangeFix = 3;
         isBlocking = false;
         rots = null;
+        RotationUtil.moveFix = false;
+        RotationUtil.silentPitchActive = false;
         alpha = 0;
         blockingState = false;
         fakeBlockState = false;
@@ -443,6 +550,9 @@ public class KillAura extends Module {
     public void onDisabled() {
         Client.BUS.unsubscribe(this);
         rots = null;
+        // Never leave the move-fix armed once we stop ticking.
+        RotationUtil.moveFix = false;
+        RotationUtil.silentPitchActive = false;
         if (isBlocking) {
             stopVanillaBlock();
         }

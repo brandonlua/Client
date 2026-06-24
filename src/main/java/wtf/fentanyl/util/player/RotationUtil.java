@@ -19,6 +19,25 @@ public final class RotationUtil implements InstanceAccess {
     private static float currentPitch = 0.0f;
     private static int rotTick;
 
+    // Move-fix state for KillAura's silent aim. When {@link #moveFix} is set, the local
+    // player's movement physics run with {@link #moveFixYaw} (the viewpoint yaw we send to
+    // the server) while WASD is rotated so the player still travels in the camera
+    // direction. Keeps movement consistent with the sent rotation. See
+    // EntityPlayerSP#moveEntityWithHeading.
+    public static boolean moveFix = false;
+    public static float moveFixYaw = 0.0f;
+
+    // Silent-aim render pitch for KillAura's AngleLock. The first-person camera pitch is
+    // left free (asynchronous), so the local player model's HEAD pitch is rendered from
+    // these values instead. This lets the viewpoint tilt up/down onto the target the same
+    // way {@link net.minecraft.entity.EntityLivingBase#rotationYawHead} lets it turn
+    // left/right, without moving the camera. {@link #silentPitch} / {@link #prevSilentPitch}
+    // are advanced once per tick (so the renderer can interpolate them with partialTicks).
+    // See RendererLivingEntity#doRender.
+    public static boolean silentPitchActive = false;
+    public static float silentPitch = 0.0f;
+    public static float prevSilentPitch = 0.0f;
+
     private static final Random theRandom = new Random();
     private static final float GCD_VALUE = getGCDValue();
 

@@ -3,6 +3,7 @@ package net.minecraft.client.renderer.entity;
 import wtf.fentanyl.Client;
 import wtf.fentanyl.client.modules.impl.render.Chams;
 import wtf.fentanyl.event.impl.EventRenderNameTag;
+import wtf.fentanyl.util.player.RotationUtil;
 import com.google.common.collect.Lists;
 import java.nio.FloatBuffer;
 import java.util.List;
@@ -156,6 +157,15 @@ public abstract class RendererLivingEntity<T extends EntityLivingBase> extends R
                 }
 
                 float f7 = entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch) * partialTicks;
+
+                // KillAura AngleLock (silent aim): the local player's camera pitch is left
+                // free, so render the model's head pitch from the locked viewpoint instead.
+                // This tilts the head up/down onto the target the same way rotationYawHead
+                // turns it left/right, without disturbing the asynchronous camera.
+                if (entity == Minecraft.getMinecraft().thePlayer && RotationUtil.silentPitchActive) {
+                    f7 = RotationUtil.prevSilentPitch + (RotationUtil.silentPitch - RotationUtil.prevSilentPitch) * partialTicks;
+                }
+
                 this.renderLivingAt(entity, x, y, z);
                 float f8 = this.handleRotationFloat(entity, partialTicks);
                 this.rotateCorpse(entity, f8, f, partialTicks);
