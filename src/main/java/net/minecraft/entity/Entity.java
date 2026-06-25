@@ -453,6 +453,12 @@ public abstract class Entity implements ICommandSender
             double d5 = z;
             boolean flag = this.onGround && this.isSneaking() && this instanceof EntityPlayer;
 
+            if (this instanceof net.minecraft.client.entity.EntityPlayerSP) {
+                wtf.fentanyl.event.impl.game.player.SafeWalkEvent safeWalkEvent = new wtf.fentanyl.event.impl.game.player.SafeWalkEvent(flag);
+                wtf.fentanyl.Client.BUS.post(safeWalkEvent);
+                flag = safeWalkEvent.isSafeWalk();
+            }
+
             if (flag)
             {
                 double d6;

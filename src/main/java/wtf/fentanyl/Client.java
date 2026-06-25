@@ -13,7 +13,6 @@ import wtf.fentanyl.event.impl.Event2D;
 import wtf.fentanyl.event.impl.Event3D;
 import wtf.fentanyl.event.impl.EventRenderNameTag;
 import wtf.fentanyl.event.impl.EventWorld;
-import wtf.fentanyl.gui.click.DropdownGUI;
 import wtf.fentanyl.gui.notification.NotificationManager;
 import lombok.Getter;
 import me.zero.alpine.bus.EventBus;
@@ -27,7 +26,6 @@ import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.entity.Entity;
 import net.minecraft.world.World;
 import org.lwjgl.opengl.Display;
-import org.lwjgl.input.Keyboard;
 
 @Getter
 public enum Client implements Subscriber {
@@ -122,10 +120,6 @@ public enum Client implements Subscriber {
 
     @Subscribe
     private final Listener<EventKey> eventkeyListener = new Listener<>(e -> {
-        if (e.getKey() == Keyboard.KEY_RSHIFT) {
-            mc.displayGuiScreen(new DropdownGUI());
-        }
-
         for (Module module : moduleManager.getModules()) {
             if (module.getKey() == e.getKey()) {
                 module.toggle();

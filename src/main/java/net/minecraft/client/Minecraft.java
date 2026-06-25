@@ -1355,6 +1355,10 @@ public class Minecraft implements IThreadListener, IPlayerUsage
 
     public void clickMouse()
     {
+        wtf.fentanyl.event.impl.game.player.LeftClickMouseEvent event = new wtf.fentanyl.event.impl.game.player.LeftClickMouseEvent();
+        wtf.fentanyl.Client.BUS.post(event);
+        if (event.isCancelled()) return;
+
         if (this.leftClickCounter <= 0)
         {
             this.thePlayer.swingItem();
