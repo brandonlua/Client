@@ -4,6 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.util.ResourceLocation;
 import wtf.fentanyl.util.animations.Animation;
 import wtf.fentanyl.util.animations.Direction;
@@ -11,6 +12,7 @@ import wtf.fentanyl.util.animations.impl.DecelerateAnimation;
 import wtf.fentanyl.client.font.CFontRenderer;
 import wtf.fentanyl.client.processes.FontProcess;
 import wtf.fentanyl.util.render.RenderUtil;
+import wtf.fentanyl.util.render.shaders.impl.Shadow;
 
 import java.awt.*;
 
@@ -28,8 +30,9 @@ public class GuiButton extends Gui
     protected boolean hovered;
 
     private final Animation hoverAnimation = new DecelerateAnimation(300, 1, Direction.BACKWARDS);
-    private static final Color PRIMARY_COLOR = new Color(228, 143, 255);
-    private static final Color SECONDARY_COLOR = new Color(255, 113, 82);
+    private static final Color PRIMARYCOLOR = new Color(228, 143, 255);
+    private static final Color SECONDARYCOLOR = new Color(255, 113, 82);
+    private Framebuffer shadowFramebuffer = new Framebuffer(1, 1, false);
 
     public GuiButton(int buttonId, int x, int y, String buttonText)
     {
@@ -73,7 +76,6 @@ public class GuiButton extends Gui
             CFontRenderer fontRenderer = FontProcess.getFont("sans");
 
             int textWidth = fontRenderer.getStringWidth(this.displayString);
-            int textY = this.yPosition + (this.height - fontRenderer.FONT_HEIGHT) / 2;
 
             this.hovered = mouseX >= this.xPosition && mouseY >= this.yPosition &&
                     mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
@@ -81,8 +83,16 @@ public class GuiButton extends Gui
             GlStateManager.enableBlend();
             GlStateManager.blendFunc(770, 771);
 
-            // Visible rounded background panel so buttons are easy to see.
             int bgAlpha = !this.enabled ? 70 : (this.hovered ? 160 : 110);
+
+            shadowFramebuffer = RenderUtil.createFrameBuffer(shadowFramebuffer);
+            shadowFramebuffer.framebufferClear();
+            shadowFramebuffer.bindFramebuffer(true);
+            RenderUtil.drawRoundedRect(this.xPosition, this.yPosition, this.width, this.height, 4,
+                    new Color(0, 0, 0, 255));
+            shadowFramebuffer.unbindFramebuffer();
+            Shadow.renderBloom(shadowFramebuffer.framebufferTexture, 8, 1);
+
             RenderUtil.drawRoundedRect(this.xPosition, this.yPosition, this.width, this.height, 4,
                     new Color(22, 22, 30, bgAlpha));
 
@@ -92,7 +102,7 @@ public class GuiButton extends Gui
                 hoverAnimation.setDirection(Direction.BACKWARDS);
             }
 
-            Color accent = RenderUtil.interpolateColorsBackAndForth(15, 75, PRIMARY_COLOR, SECONDARY_COLOR, false);
+            Color accent = RenderUtil.interpolateColorsBackAndForth(15, 75, PRIMARYCOLOR, SECONDARYCOLOR, false);
 
             int textColor = !this.enabled ? new Color(140, 140, 145).getRGB()
                     : (this.hovered ? accent.getRGB() : new Color(225, 225, 230).getRGB());
@@ -102,7 +112,7 @@ public class GuiButton extends Gui
                     textColor);
 
             int highlightHeight = 1;
-            int highlightY = textY + fontRenderer.FONT_HEIGHT + 3;
+            int highlightY = this.yPosition + this.height - 4;
             float animWidth = (float) ((textWidth + 8) * hoverAnimation.getOutput());
 
             RenderUtil.drawRoundedRect(this.xPosition + this.width / 2f - animWidth / 2f, highlightY,
