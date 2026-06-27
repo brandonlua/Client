@@ -105,16 +105,17 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
 
+        int buttonSpacing = 22;
         int i = 24;
         int j = this.height / 4 + 48;
 
         if (this.mc.isDemo())
         {
-            this.addDemoButtons(j, 24);
+            this.addDemoButtons(j, buttonSpacing);
         }
         else
         {
-            this.addSingleplayerMultiplayerButtons(j, 24);
+            this.addSingleplayerMultiplayerButtons(j, buttonSpacing);
         }
 
         this.buttonList.add(new GuiButton(0, this.width / 2 - 100, j + 72 + 12, 98, 20, I18n.format("menu.options", new Object[0])));
@@ -155,8 +156,8 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
 
         if (Reflector.GuiModList_Constructor.exists())
         {
-            this.buttonList.add(this.altsButton = new GuiButton(14, this.width / 2 + 2, p_73969_1_ + p_73969_2_ * 2, 98, 20, "Alt Manager"));
-            this.buttonList.add(this.modButton = new GuiButton(6, this.width / 2 - 100, p_73969_1_ + p_73969_2_ * 2, 98, 20, I18n.format("fml.menu.mods", new Object[0])));
+            this.buttonList.add(this.altsButton = new GuiButton(14, this.width / 2 - 100, p_73969_1_ + p_73969_2_ * 2, 98, 20, "Alt Manager"));
+            this.buttonList.add(this.modButton = new GuiButton(6, this.width / 2 + 2, p_73969_1_ + p_73969_2_ * 2, 98, 20, I18n.format("fml.menu.mods", new Object[0])));
         }
         else
         {
