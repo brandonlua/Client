@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CategoryPanel {
+public class    CategoryPanel {
 
     private Category category;
     private float x;
@@ -44,7 +44,7 @@ public class CategoryPanel {
         ICONS.put(Category.RENDER, new ResourceLocation("minecraft", "client/icon/Visual.png"));
         ICONS.put(Category.MOVEMENT, new ResourceLocation("minecraft", "client/icon/Movement.png"));
         ICONS.put(Category.COMBAT, new ResourceLocation("minecraft", "client/icon/Combat.png"));
-        ICONS.put(Category.MISC, new ResourceLocation("minecraft", "client/icon/misc.png"));
+        ICONS.put(Category.MISC, new ResourceLocation("minecraft", "client/icon/Misc.png"));
     }
 
     public CategoryPanel(Category category, float x, float y) {
