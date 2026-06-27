@@ -67,7 +67,7 @@ public class NotificationManager {
     }
 
     public void flagged(Module module) {
-        post(NotificationType.WARNING, "Warning", "You've been flagged by the 20$ anticheat");
+        post(NotificationType.WARNING, "Warning", "You've been flagged by the 20000$ anticheat");
         if (module != null && module.isToggled()) {
             module.toggle();
             post(NotificationType.ERROR, module.getName() + " Disabled", "Disabled due to config issues");

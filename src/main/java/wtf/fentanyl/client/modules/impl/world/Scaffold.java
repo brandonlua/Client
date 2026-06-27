@@ -1,4 +1,4 @@
-package wtf.fentanyl.client.modules.impl.movement;
+package wtf.fentanyl.client.modules.impl.world;
 
 import me.zero.alpine.listener.Listener;
 import me.zero.alpine.listener.Subscribe;
@@ -40,10 +40,9 @@ import wtf.fentanyl.event.impl.game.player.SafeWalkEvent;
 import wtf.fentanyl.event.impl.game.player.StrafeEvent;
 import wtf.fentanyl.event.impl.game.player.SwapItemEvent;
 import wtf.fentanyl.util.player.MovementUtil;
-import wtf.fentanyl.util.player.PlayerUtil;
 import wtf.fentanyl.util.player.RotationUtil;
 
-@ModuleInfo(name = "Scaffold", category = Category.MOVEMENT)
+@ModuleInfo(name = "Scaffold", category = Category.WORLD)
 public class Scaffold extends Module {
     private static final double[] placeOffsets = new double[]{
             0.03125,
