@@ -90,7 +90,7 @@ public class GuiSplash extends GuiScreen {
 
     @Override
     protected void keyTyped(char typedChar, int keyCode) throws IOException {
-        // Let the user skip the intro.
+
         this.mc.displayGuiScreen(new GuiMainMenu());
     }
 }

@@ -71,7 +71,7 @@ public class    CategoryPanel {
     public void render(int mouseX, int mouseY, CFontRenderer font, Color themeColor, Module listeningModule, ModeValue expandedMode, ColorPicker colorPicker, TextValue editingText) {
         CFontRenderer currentFont = getFont(font);
         if (currentFont == null) {
-            // Without a font there is nothing safe to draw; skip this frame for the panel.
+
             return;
         }
         if (themeColor == null) {
@@ -143,7 +143,7 @@ public class    CategoryPanel {
         for (ModuleButton button : moduleButtons) {
             button.updateAnimation();
             button.render(x, moduleY, width, mouseX, mouseY, currentFont, themeColor, listeningModule, expandedMode, colorPicker, editingText);
-            moduleY += 13;
+            moduleY += ModuleButton.ROW_HEIGHT;
             moduleY += button.renderSettings(x, moduleY, width, mouseX, mouseY, currentFont, themeColor, listeningModule, expandedMode, colorPicker, editingText);
         }
 

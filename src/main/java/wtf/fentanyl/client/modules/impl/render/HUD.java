@@ -6,50 +6,52 @@ import wtf.fentanyl.client.modules.Category;
 import wtf.fentanyl.client.modules.Module;
 import wtf.fentanyl.client.modules.ModuleInfo;
 import wtf.fentanyl.client.modules.values.impl.BoolValue;
-import wtf.fentanyl.client.modules.values.impl.ModeValue;
 import wtf.fentanyl.client.modules.values.impl.ColorValue;
+import wtf.fentanyl.client.modules.values.impl.ModeValue;
 import wtf.fentanyl.client.modules.values.impl.SliderValue;
 import wtf.fentanyl.client.modules.values.impl.TextValue;
 import wtf.fentanyl.client.widget.ArrayListWidget;
-import wtf.fentanyl.client.widget.SessionInfoWidget;
 import wtf.fentanyl.client.widget.DisplayInfoWidget;
+import wtf.fentanyl.client.widget.SessionInfoWidget;
 import wtf.fentanyl.event.impl.Event2D;
 import wtf.fentanyl.util.render.RenderUtil;
 import wtf.fentanyl.util.render.shaders.impl.Blur;
-import wtf.fentanyl.util.render.shaders.impl.Shadow;
 import wtf.fentanyl.util.render.shaders.impl.Bloom;
+import wtf.fentanyl.util.render.shaders.impl.Shadow;
 import me.zero.alpine.listener.Listener;
 import me.zero.alpine.listener.Subscribe;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.shader.Framebuffer;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Font;
 
 @ModuleInfo(name = "HUD", category = Category.RENDER)
 public class HUD extends Module {
 
-    private ModeValue watermarkMode = new ModeValue("Watermark", new String[]{"Default", "Weedhack", "Vestige", "Custom", "None"}, "Default", this);
-    private TextValue customText = new TextValue("Custom", "Fentanyl", this, () -> watermarkMode.is("Custom"));
-    public ColorValue theme = new ColorValue("Theme", new Color(255, 50, 50), this);
-    public ModeValue fontMode = new ModeValue("Font", new String[]{"tahoma", "arial", "client", "noto", "sans"}, "sans", this);
+    private final ModeValue watermarkMode = new ModeValue("Watermark", new String[]{"Default", "Weedhack", "Vestige", "Custom", "None"}, "Default", this);
+    private final TextValue customText = new TextValue("Custom", "Fentanyl", this, () -> watermarkMode.is("Custom"));
+    public final ColorValue theme = new ColorValue("Theme", new Color(255, 50, 50), this);
+    public final ModeValue fontMode = new ModeValue("Font", new String[]{"tahoma", "arial", "client", "noto", "sans"}, "sans", this);
 
-    private BoolValue arrayList = new BoolValue("ArrayList", true, this);
-    private ModeValue arrayListpos = new ModeValue("Position", new String[]{"Top Left", "Top Right", "Bottom Left", "Bottom Right"}, "Top Right", this, () -> arrayList.get());
-    private SliderValue background = new SliderValue("Opacity", 100F, 0F, 255F, this, () -> arrayList.get());
-    private BoolValue suffix = new BoolValue("Suffix", true, this, () -> arrayList.get());
-    private ModeValue outline = new ModeValue("Outline", new String[]{"None", "Left", "Right", "Top"}, "None", this, () -> arrayList.get());
+    private final BoolValue arrayList = new BoolValue("ArrayList", true, this);
+    private final ModeValue arrayListPos = new ModeValue("Position", new String[]{"Top Left", "Top Right", "Bottom Left", "Bottom Right"}, "Top Right", this, () -> arrayList.get());
+    private final SliderValue background = new SliderValue("Opacity", 100F, 0F, 255F, this, () -> arrayList.get());
+    private final BoolValue suffix = new BoolValue("Suffix", true, this, () -> arrayList.get());
+    private final ModeValue outline = new ModeValue("Outline", new String[]{"None", "Left", "Right", "Top"}, "None", this, () -> arrayList.get());
 
-    private BoolValue sessionInfo = new BoolValue("Session Information", false, this);
+    private final BoolValue sessionInfo = new BoolValue("Session Information", false, this);
 
     public CFontRenderer fr;
     private String currentFont = null;
+
     public SessionInfoWidget sessionInfoWidget;
     public DisplayInfoWidget displayInfoWidget;
     public ArrayListWidget arrayListWidget;
+
     private Framebuffer stencilFramebuffer = new Framebuffer(1, 1, false);
+    private Framebuffer shadowFramebuffer = new Framebuffer(1, 1, false);
 
     @Subscribe
     private final Listener<Event2D> event2DListener = new Listener<>(e -> {
@@ -79,35 +81,7 @@ public class HUD extends Module {
         }
 
         if (arrayList.get()) {
-            PostProcessing postProcessing = (PostProcessing) Client.INSTANCE.getModuleManager().getModule("PostProcessing");
-
-            if (postProcessing != null && postProcessing.isToggled() && postProcessing.bloom.get()) {
-                stencilFramebuffer = RenderUtil.createFrameBuffer(stencilFramebuffer);
-                stencilFramebuffer.framebufferClear();
-                stencilFramebuffer.bindFramebuffer(false);
-                RenderUtil.resetColor();
-                arrayListWidget.render(fr, width, height, arrayListpos.get(), suffix.get(), outline.get(), background.get(), theme.get().getRGB());
-                RenderUtil.resetColor();
-                stencilFramebuffer.unbindFramebuffer();
-
-                Bloom.renderBlur(stencilFramebuffer.framebufferTexture, (int) postProcessing.bloomRadius.get(), (int) postProcessing.bloomOffset.get());
-            }
-
-            if (postProcessing != null && postProcessing.isToggled() && postProcessing.blur.get()) {
-                Blur.startBlur();
-                arrayListWidget.render(fr, width, height, arrayListpos.get(), suffix.get(), outline.get(), background.get(), theme.get().getRGB());
-                Blur.endBlur(postProcessing.blurRadius.get(), 1);
-            }
-
-            if (postProcessing != null && postProcessing.isToggled() && postProcessing.shadow.get()) {
-                GlStateManager.enableAlpha();
-                GlStateManager.alphaFunc(516, 0.0f);
-                GlStateManager.enableBlend();
-                Shadow.renderBloom(mc.getFramebuffer().framebufferTexture, (int) postProcessing.shadowRadius.get(), 1);
-                GlStateManager.disableBlend();
-            }
-
-            arrayListWidget.render(fr, width, height, arrayListpos.get(), suffix.get(), outline.get(), background.get(), theme.get().getRGB());
+            renderArrayList(width, height);
         }
     });
 
@@ -116,6 +90,45 @@ public class HUD extends Module {
         sessionInfoWidget = new SessionInfoWidget();
         displayInfoWidget = new DisplayInfoWidget();
         arrayListWidget = new ArrayListWidget();
+    }
+
+    private void renderArrayList(int width, int height) {
+        PostProcessing postProcessing = (PostProcessing) Client.INSTANCE.getModuleManager().getModule("PostProcessing");
+        boolean ppActive = postProcessing != null && postProcessing.isToggled();
+
+        if (ppActive && postProcessing.bloom.get()) {
+            stencilFramebuffer = RenderUtil.createFrameBuffer(stencilFramebuffer);
+            stencilFramebuffer.framebufferClear();
+            stencilFramebuffer.bindFramebuffer(false);
+            RenderUtil.resetColor();
+            drawArrayList(width, height);
+            RenderUtil.resetColor();
+            stencilFramebuffer.unbindFramebuffer();
+
+            Bloom.renderBlur(stencilFramebuffer.framebufferTexture, (int) postProcessing.bloomRadius.get(), (int) postProcessing.bloomOffset.get());
+        }
+
+        if (ppActive && postProcessing.shadow.get()) {
+            shadowFramebuffer = RenderUtil.createFrameBuffer(shadowFramebuffer);
+            shadowFramebuffer.framebufferClear();
+            shadowFramebuffer.bindFramebuffer(true);
+            drawArrayList(width, height);
+            shadowFramebuffer.unbindFramebuffer();
+
+            Shadow.renderBloom(shadowFramebuffer.framebufferTexture, (int) postProcessing.shadowRadius.get(), 1);
+        }
+
+        if (ppActive && postProcessing.blur.get()) {
+            Blur.startBlur();
+            drawArrayList(width, height);
+            Blur.endBlur(postProcessing.blurRadius.get(), 1);
+        }
+
+        drawArrayList(width, height);
+    }
+
+    private void drawArrayList(int width, int height) {
+        arrayListWidget.render(fr, width, height, arrayListPos.get(), suffix.get(), outline.get(), background.get(), theme.get().getRGB());
     }
 
     public int bgColor() {
@@ -132,7 +145,6 @@ public class HUD extends Module {
         float textWidth = fr.getStringWidth(text);
         float boxWidth = textWidth + 4;
         float boxHeight = 12;
-
 
         RenderUtil.drawRect(x, y, boxWidth + 8, boxHeight + 8, new Color(60, 60, 60));
         RenderUtil.drawRect(x + 1, y + 1, boxWidth + 6, boxHeight + 6, new Color(40, 40, 40));
@@ -154,41 +166,38 @@ public class HUD extends Module {
 
     private void renderVestige(float x, float y) {
         String clientName = "Vestige";
-        String formattedClientName = String.valueOf(clientName.charAt(0)) + "§f" + clientName.substring(1);
+        String formattedClientName = clientName.charAt(0) + "§f" + clientName.substring(1);
 
         String watermark = formattedClientName + " | " + mc.getDebugFPS() + "FPS | " + getCurrentServer();
-
         double watermarkWidth = fr.getStringWidth(watermark);
 
-        for(int i = 0; i < (int)(7 + watermarkWidth); i++) {
-            Gui.drawRect((int)(x + i - 2), (int)y, (int)(x + i - 1), (int)(y + 2.5F), theme.get().getRGB());
+        for (int i = 0; i < (int) (7 + watermarkWidth); i++) {
+            Gui.drawRect((int) (x + i - 2), (int) y, (int) (x + i - 1), (int) (y + 2.5F), theme.get().getRGB());
         }
 
-        drawGradientSideRect((int)(x - 2), (int)(y + 1), (int)x, (int)(y + 14.5F), 0x15000000, 0x50000000);
-        drawGradientSideRect((int)(x + 3 + watermarkWidth), (int)(y + 1), (int)(x + 5 + watermarkWidth), (int)(y + 14.5F), 0x50000000, 0x15000000);
-
-        drawGradientVerticalRect((int)(x - 2), (int)(y + 14.5F), (int)(x + 5 + watermarkWidth), (int)(y + 16.5F), 0x50000000, 0x15000000);
+        drawGradientSideRect((int) (x - 2), (int) (y + 1), (int) x, (int) (y + 14.5F), 0x15000000, 0x50000000);
+        drawGradientSideRect((int) (x + 3 + watermarkWidth), (int) (y + 1), (int) (x + 5 + watermarkWidth), (int) (y + 14.5F), 0x50000000, 0x15000000);
+        drawGradientVerticalRect((int) (x - 2), (int) (y + 14.5F), (int) (x + 5 + watermarkWidth), (int) (y + 16.5F), 0x50000000, 0x15000000);
 
         fr.drawStringWithShadow(watermark, x + 1, y + 5, theme.get().getRGB());
     }
 
     private void renderCustomWatermark(float x, float y) {
         String watermark = customText.get();
+        if (watermark.isEmpty()) return;
 
-        if (watermark.length() > 0) {
-            String firstChar = watermark.substring(0, 1);
-            String rest = watermark.substring(1);
+        String firstChar = watermark.substring(0, 1);
+        String rest = watermark.substring(1);
 
-            fr.drawStringWithShadow(firstChar, x, y, theme.get().getRGB());
-            float firstCharWidth = fr.getStringWidth(firstChar);
-            fr.drawStringWithShadow(rest, x + firstCharWidth, y, Color.WHITE.getRGB());
-        }
+        fr.drawStringWithShadow(firstChar, x, y, theme.get().getRGB());
+        float firstCharWidth = fr.getStringWidth(firstChar);
+        fr.drawStringWithShadow(rest, x + firstCharWidth, y, Color.WHITE.getRGB());
     }
 
     private void drawGradientSideRect(int left, int top, int right, int bottom, int startColor, int endColor) {
         int height = bottom - top;
         for (int i = 0; i < height; i++) {
-            float ratio = (float)i / height;
+            float ratio = (float) i / height;
             int color = interpolateColor(startColor, endColor, ratio);
             Gui.drawRect(left, top + i, right, top + i + 1, color);
         }
@@ -197,7 +206,7 @@ public class HUD extends Module {
     private void drawGradientVerticalRect(int left, int top, int right, int bottom, int startColor, int endColor) {
         int height = bottom - top;
         for (int i = 0; i < height; i++) {
-            float ratio = (float)i / height;
+            float ratio = (float) i / height;
             int color = interpolateColor(startColor, endColor, ratio);
             Gui.drawRect(left, top + i, right, top + i + 1, color);
         }

@@ -8,13 +8,22 @@ import wtf.fentanyl.client.modules.impl.render.PostProcessing;
 import wtf.fentanyl.client.modules.values.Value;
 import wtf.fentanyl.client.modules.values.impl.*;
 import wtf.fentanyl.util.render.RenderUtil;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.util.ResourceLocation;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
 import java.awt.*;
 
 public class ModuleButton {
+
+    private static final ResourceLocation moreIcon = new ResourceLocation("client/icon/more.png");
+    public static final float ROW_HEIGHT = 18f;
+    private static final float ROW_GAP = 3f;
+    private static final float ICON_SIZE = 12f;
+    private static final Color PANEL_BG_TONE = new Color(28, 28, 28);
 
     private Module module;
     private float animation = 0;
@@ -73,27 +82,41 @@ public class ModuleButton {
         Color currentTheme = getThemeColor();
 
         boolean blurOn = isBlurOn();
-        boolean hoverMod = isHovered(mouseX, mouseY, x + 1.5f, y, width - 3, 13);
+        boolean hoverMod = isHovered(mouseX, mouseY, x + 1.5f, y, width - 3, ROW_HEIGHT);
 
         Color modBg;
         if (blurOn) {
             if (module.isToggled()) {
                 modBg = new Color(currentTheme.getRed(), currentTheme.getGreen(), currentTheme.getBlue(), hoverMod ? 60 : 50);
             } else {
-                modBg = new Color(30, 30, 30, hoverMod ? 120 : 90);
+                modBg = new Color(PANEL_BG_TONE.getRed(), PANEL_BG_TONE.getGreen(), PANEL_BG_TONE.getBlue(), hoverMod ? 120 : 95);
             }
         } else {
             if (module.isToggled()) {
                 modBg = hoverMod ? new Color(50, 50, 50) : new Color(45, 45, 45);
             } else {
-                modBg = hoverMod ? new Color(38, 38, 38) : new Color(33, 33, 33);
+                modBg = hoverMod ? new Color(34, 34, 34) : PANEL_BG_TONE;
             }
         }
 
-        RenderUtil.drawRect(x + 1.5f, y, width - 3, 13, modBg);
+        RenderUtil.drawRect(x + 1.5f, y, width - 3, ROW_HEIGHT, modBg);
 
-        currentFont.drawString(module.getName(), x + 5, y + 3,
+        currentFont.drawString(module.getName(), x + 5, y + 5,
                 module.isToggled() ? Color.WHITE.getRGB() : new Color(180, 180, 180).getRGB());
+
+        if (!module.getValues().isEmpty()) {
+            float iconX = x + width - 6 - ICON_SIZE;
+            float iconY = y + (ROW_HEIGHT - ICON_SIZE) / 2f;
+
+            GlStateManager.pushMatrix();
+            GlStateManager.enableBlend();
+            GlStateManager.color(1, 1, 1, module.isToggled() ? 1f : 0.6f);
+            Minecraft.getMinecraft().getTextureManager().bindTexture(moreIcon);
+            Gui.drawModalRectWithCustomSizedTexture((int) iconX, (int) iconY, 0, 0, (int) ICON_SIZE, (int) ICON_SIZE, (int) ICON_SIZE, (int) ICON_SIZE);
+            GlStateManager.color(1, 1, 1, 1);
+            GlStateManager.disableBlend();
+            GlStateManager.popMatrix();
+        }
     }
 
     public float renderSettings(float x, float y, float width, int mouseX, int mouseY, CFontRenderer font, Color themeColor, Module listeningModule, ModeValue expandedMode, ColorPicker colorPicker, TextValue editingText) {
@@ -151,7 +174,7 @@ public class ModuleButton {
         }
 
         RenderUtil.drawRect(x + 1.5f, y, width - 3, 13 * animation, bg);
-        font.drawString(boolValue.getName(), x + 5, y + 3, new Color(255, 255, 255, (int) (255 * animation)).getRGB());
+        font.drawString(boolValue.getName(), x + 5, y + 4, new Color(255, 255, 255, (int) (255 * animation)).getRGB());
 
         float boxX = x + width - 14;
         float boxY = y + 3f;
@@ -223,10 +246,10 @@ public class ModuleButton {
         }
 
         RenderUtil.drawRect(x + 1.5f, y, width - 3, 13 * animation, bg);
-        font.drawString(modeValue.getName(), x + 5, y + 3, new Color(255, 255, 255, (int) (255 * animation)).getRGB());
+        font.drawString(modeValue.getName(), x + 5, y + 4, new Color(255, 255, 255, (int) (255 * animation)).getRGB());
 
         String currentMode = modeValue.get();
-        font.drawString(currentMode, x + width - 5 - font.getStringWidth(currentMode), y + 3, new Color(180, 180, 180, (int) (255 * animation)).getRGB());
+        font.drawString(currentMode, x + width - 5 - font.getStringWidth(currentMode), y + 4, new Color(180, 180, 180, (int) (255 * animation)).getRGB());
 
         float offsetY = 13 * animation;
 
@@ -236,7 +259,7 @@ public class ModuleButton {
                 Color modeBg = blurOn ? new Color(32, 32, 32, 100) : new Color(32, 32, 32);
                 RenderUtil.drawRect(x + 1.5f, y + offsetY, width - 3, 13, modeBg);
                 int textColor = isSelected ? new Color(220, 220, 220).getRGB() : new Color(110, 110, 110).getRGB();
-                font.drawString(mode, x + 8, y + offsetY + 3, textColor);
+                font.drawString(mode, x + 8, y + offsetY + 4, textColor);
                 offsetY += 13;
             }
         }
@@ -258,7 +281,7 @@ public class ModuleButton {
         }
 
         RenderUtil.drawRect(x + 1.5f, y, width - 3, colorBoxHeight * animation, bg);
-        font.drawString(colorValue.getName(), x + 5, y + 3, new Color(255, 255, 255, (int) (255 * animation)).getRGB());
+        font.drawString(colorValue.getName(), x + 5, y + 4, new Color(255, 255, 255, (int) (255 * animation)).getRGB());
 
         Color currentColor = colorValue.get();
         float colorBoxX = x + width - 22;
@@ -297,7 +320,7 @@ public class ModuleButton {
         }
 
         RenderUtil.drawRect(x + 1.5f, y, width - 3, 13 * animation, bg);
-        font.drawString(textValue.getName(), x + 5, y + 3, new Color(255, 255, 255, (int) (255 * animation)).getRGB());
+        font.drawString(textValue.getName(), x + 5, y + 4, new Color(255, 255, 255, (int) (255 * animation)).getRGB());
 
         String displayText = textValue.get();
         if (displayText.length() > 15) {
@@ -313,7 +336,7 @@ public class ModuleButton {
     }
 
     public void handleClick(float x, float y, float width, int mouseX, int mouseY, int mouseButton, Module[] listeningModule, ModeValue[] expandedMode, ColorPicker colorPicker, TextValue[] editingText) {
-        boolean hoverMod = isHovered(mouseX, mouseY, x + 1.5f, y + 1, width - 3, 13);
+        boolean hoverMod = isHovered(mouseX, mouseY, x + 1.5f, y + 1, width - 3, ROW_HEIGHT);
 
         if (hoverMod && mouseButton == 0) {
             module.toggle();
@@ -325,7 +348,7 @@ public class ModuleButton {
             }
         }
 
-        float offsetY = 13;
+        float offsetY = ROW_HEIGHT;
 
         if (animation > 0) {
             if (isHovered(mouseX, mouseY, x + 1.5f, y + offsetY, width - 3, 8 * animation)) {
@@ -399,11 +422,10 @@ public class ModuleButton {
     }
 
     public float calculateHeight(ModeValue expandedMode, ColorPicker colorPicker) {
-        float height = 13;
+        float height = ROW_HEIGHT;
 
         if (animation > 0) {
-            float expandedHeight = 13;
-            expandedHeight += 3;
+            float expandedHeight = 13 + ROW_GAP;
 
             if (!module.getValues().isEmpty()) {
                 for (Value value : module.getValues()) {

@@ -18,6 +18,14 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/OWNER/REPOSITORY</url>
+        </repository>
+    </distributionManagement>
+
     <repositories>
         <repository>
             <id>maven-mcp-repository</id>
@@ -178,10 +186,6 @@
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>Start</mainClass>
                                     <manifestEntries>
-                                        <!-- log4j-core ships its Java 9+ stack locator under
-                                             META-INF/versions/9/. Without this flag the shaded jar
-                                             falls back to the old sun.reflect locator, which throws
-                                             "No class provided" on Java 9+ (crashes Minecraft.<clinit>). -->
                                         <Multi-Release>true</Multi-Release>
                                     </manifestEntries>
                                 </transformer>

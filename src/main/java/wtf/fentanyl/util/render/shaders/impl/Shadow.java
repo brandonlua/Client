@@ -1,6 +1,6 @@
 package wtf.fentanyl.util.render.shaders.impl;
-import org.lwjgl.opengl.GL11;
 
+import org.lwjgl.opengl.GL11;
 import wtf.fentanyl.util.InstanceAccess;
 import wtf.fentanyl.util.math.MathUtil;
 import wtf.fentanyl.util.render.RenderUtil;
@@ -17,7 +17,6 @@ import java.nio.FloatBuffer;
 import static org.lwjgl.opengl.GL11.*;
 
 public class Shadow implements InstanceAccess {
-
     public static ShaderUtil bloomShader = new ShaderUtil("shadow");
     public static Framebuffer bloomFramebuffer = new Framebuffer(1, 1, false);
     public static float prevRadius;
@@ -30,7 +29,7 @@ public class Shadow implements InstanceAccess {
         OpenGlHelper.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO);
         GlStateManager.enableAlpha();
         GlStateManager.alphaFunc(GL_GREATER, 0);
-
+        GlStateManager.clearColor(0.0f, 0.0f, 0.0f, 0.0f);
         bloomFramebuffer.framebufferClear();
         bloomFramebuffer.bindFramebuffer(true);
         bloomShader.init();
@@ -39,9 +38,7 @@ public class Shadow implements InstanceAccess {
         ShaderUtil.drawQuads();
         bloomShader.unload();
         bloomFramebuffer.unbindFramebuffer();
-
         mc.getFramebuffer().bindFramebuffer(true);
-
         bloomShader.init();
         setupUniforms(radius, 0, offset);
         GL13.glActiveTexture(GL13.GL_TEXTURE16);
@@ -50,10 +47,8 @@ public class Shadow implements InstanceAccess {
         glBindTexture(GL_TEXTURE_2D, bloomFramebuffer.framebufferTexture);
         ShaderUtil.drawQuads();
         bloomShader.unload();
-
         GlStateManager.alphaFunc(516, 0.1f);
         GlStateManager.enableAlpha();
-
         GlStateManager.bindTexture(0);
     }
 
@@ -64,14 +59,12 @@ public class Shadow implements InstanceAccess {
                 weightBuffer.put(MathUtil.calculateGaussianValue(i, radius));
             }
             weightBuffer.rewind();
-
             bloomShader.setUniformi("inTexture", 0);
             bloomShader.setUniformi("textureToCheck", 16);
             bloomShader.setUniformf("radius", radius);
             GL20.glUniform1fv(bloomShader.getUniform("weights"), weightBuffer);
             prevRadius = radius;
         }
-
         bloomShader.setUniformf("texelSize", 1.0F / (float) mc.displayWidth, 1.0F / (float) mc.displayHeight);
         bloomShader.setUniformf("direction", directionX, directionY);
     }
