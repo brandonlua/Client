@@ -16,7 +16,6 @@ import java.lang.reflect.Field;
 public class FastPlace extends Module {
 
     private final SliderValue rightDelay = new SliderValue("RMB delay", 0F, 0F, 1F, this);
-    private final SliderValue leftDelay = new SliderValue("LMB delay", 0F, 0F, 1F, this);
 
     @Subscribe
     private Listener<UpdateEvent> updateListener;
@@ -24,22 +23,12 @@ public class FastPlace extends Module {
     public FastPlace() {
         updateListener = new Listener<>(event -> {
             setRightClickDelayTimer((int) rightDelay.get());
-            setLeftClickCounter((int) leftDelay.get());
         });
     }
 
     private void setRightClickDelayTimer(int value) {
         try {
             Field field = mc.getClass().getDeclaredField("rightClickDelayTimer");
-            field.setAccessible(true);
-            field.setInt(mc, value);
-        } catch (Exception e) {
-        }
-    }
-
-    private void setLeftClickCounter(int value) {
-        try {
-            Field field = mc.getClass().getDeclaredField("leftClickCounter");
             field.setAccessible(true);
             field.setInt(mc, value);
         } catch (Exception e) {
@@ -55,6 +44,5 @@ public class FastPlace extends Module {
     public void onDisabled() {
         Client.BUS.unsubscribe(this);
         setRightClickDelayTimer(4);
-        setLeftClickCounter(10);
     }
 }

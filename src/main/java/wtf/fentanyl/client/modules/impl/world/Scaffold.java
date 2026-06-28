@@ -2,9 +2,11 @@ package wtf.fentanyl.client.modules.impl.world;
 
 import me.zero.alpine.listener.Listener;
 import me.zero.alpine.listener.Subscribe;
+import wtf.fentanyl.Client;
 import net.minecraft.block.Block;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
@@ -26,6 +28,9 @@ import java.util.Comparator;
 import wtf.fentanyl.client.modules.Category;
 import wtf.fentanyl.client.modules.Module;
 import wtf.fentanyl.client.modules.ModuleInfo;
+import wtf.fentanyl.client.modules.impl.render.HUD;
+import wtf.fentanyl.client.modules.impl.render.PostProcessing;
+import wtf.fentanyl.client.font.CFontRenderer;
 import wtf.fentanyl.client.modules.values.impl.BoolValue;
 import wtf.fentanyl.client.modules.values.impl.ModeValue;
 import wtf.fentanyl.client.modules.values.impl.SliderValue;
@@ -41,6 +46,10 @@ import wtf.fentanyl.event.impl.game.player.StrafeEvent;
 import wtf.fentanyl.event.impl.game.player.SwapItemEvent;
 import wtf.fentanyl.util.player.MovementUtil;
 import wtf.fentanyl.util.player.RotationUtil;
+import wtf.fentanyl.util.render.RenderUtil;
+import wtf.fentanyl.util.render.shaders.impl.Blur;
+import wtf.fentanyl.util.render.shaders.impl.Bloom;
+import wtf.fentanyl.util.render.shaders.impl.Shadow;
 
 @ModuleInfo(name = "Scaffold", category = Category.WORLD)
 public class Scaffold extends Module {
@@ -75,6 +84,9 @@ public class Scaffold extends Module {
     private boolean shouldKeepY = false;
     private boolean towering = false;
     private EnumFacing targetFacing = null;
+    private ItemStack blockCounterStack = null;
+    private Framebuffer blockCounterStencil = new Framebuffer(1, 1, false);
+    private Framebuffer blockCounterShadow = new Framebuffer(1, 1, false);
 
     public final ModeValue rotationMode = new ModeValue("Rotations", new String[]{"NONE", "DEFAULT", "BACKWARDS", "SIDEWAYS", "GODBRIDGE"}, "BACKWARDS", this);
     public final ModeValue moveFix = new ModeValue("Move-fix", new String[]{"NONE", "SILENT"}, "SILENT", this);
@@ -284,6 +296,9 @@ public class Scaffold extends Module {
             if (this.canPlace()) {
                 ItemStack stack = mc.thePlayer.getHeldItem();
                 int count = isBlock(stack) ? stack.stackSize : 0;
+                if (count > 0) {
+                    this.blockCounterStack = stack.copy();
+                }
                 this.blockCount = Math.min(this.blockCount, count);
                 if (this.blockCount <= 0) {
                     int slot = mc.thePlayer.inventory.currentItem;
@@ -296,6 +311,7 @@ public class Scaffold extends Module {
                         if (isBlock(candidate)) {
                             mc.thePlayer.inventory.currentItem = hotbarSlot;
                             this.blockCount = candidate.stackSize;
+                            this.blockCounterStack = candidate.copy();
                             break;
                         }
                     }
@@ -695,18 +711,78 @@ public class Scaffold extends Module {
             ScaledResolution sr = event.getSr();
             float x = sr.getScaledWidth() / 2.0F + mc.fontRendererObj.FONT_HEIGHT * 1.5F;
             float y = sr.getScaledHeight() / 2.0F - mc.fontRendererObj.FONT_HEIGHT / 2.0F + 1.0F;
-            int color = (count > 0 ? Color.WHITE.getRGB() : new Color(255, 85, 85).getRGB()) | -1090519040;
+            CFontRenderer hudFont = getHudFont();
+            String text = String.valueOf(count);
+            ItemStack displayStack = this.blockCounterStack;
+            if (displayStack != null && !(displayStack.getItem() instanceof ItemBlock)) {
+                displayStack = null;
+            }
+            boolean useHudFont = hudFont != null;
+            float textWidth = useHudFont ? hudFont.getStringWidth(text) : mc.fontRendererObj.getStringWidth(text);
+            float iconSize = 16.0F;
+            float contentWidth = textWidth + (displayStack != null ? iconSize + 4.0F : 0.0F);
+            float boxX = x - 4;
+            float boxY = y - 3;
+            float boxW = contentWidth + 10.0F;
+            float boxH = (useHudFont ? hudFont.FONT_HEIGHT : mc.fontRendererObj.FONT_HEIGHT) + 8;
+            int textColor = Color.WHITE.getRGB();
+
+            PostProcessing postProcessing = Client.INSTANCE != null && Client.INSTANCE.getModuleManager() != null
+                    ? (PostProcessing) Client.INSTANCE.getModuleManager().getModule("PostProcessing")
+                    : null;
+            boolean ppOn = postProcessing != null && postProcessing.isToggled();
+            boolean blurOn = ppOn && postProcessing.blur.get();
+            boolean shadowOn = ppOn && postProcessing.shadow.get();
+            boolean bloomOn = ppOn && postProcessing.bloom.get();
+            Color bg = new Color(0, 0, 0, blurOn ? 105 : 165);
+
+            if (shadowOn) {
+                blockCounterShadow = RenderUtil.createFrameBuffer(blockCounterShadow);
+                blockCounterShadow.framebufferClear();
+                blockCounterShadow.bindFramebuffer(true);
+                RenderUtil.drawRoundedRect(boxX, boxY, boxW, boxH, 4, new Color(0, 0, 0, 255));
+                blockCounterShadow.unbindFramebuffer();
+                GlStateManager.enableAlpha();
+                GlStateManager.alphaFunc(516, 0.0f);
+                GlStateManager.enableBlend();
+                Shadow.renderBloom(blockCounterShadow.framebufferTexture, (int) postProcessing.shadowRadius.get(), 1);
+                GlStateManager.disableBlend();
+            }
+
+            if (bloomOn) {
+                blockCounterStencil = RenderUtil.createFrameBuffer(blockCounterStencil);
+                blockCounterStencil.framebufferClear();
+                blockCounterStencil.bindFramebuffer(false);
+                RenderUtil.resetColor();
+                RenderUtil.drawRoundedRect(boxX, boxY, boxW, boxH, 4, new Color(0, 0, 0, 255));
+                RenderUtil.resetColor();
+                blockCounterStencil.unbindFramebuffer();
+                Bloom.renderBlur(blockCounterStencil.framebufferTexture, (int) postProcessing.bloomRadius.get(), (int) postProcessing.bloomOffset.get());
+            }
+
+            if (blurOn) {
+                Blur.startBlur();
+                RenderUtil.drawRoundedRect(boxX, boxY, boxW, boxH, 4, bg);
+                Blur.endBlur(postProcessing.blurRadius.get(), 1);
+            }
+
+            RenderUtil.drawRoundedRect(boxX, boxY, boxW, boxH, 4, bg);
 
             GlStateManager.pushMatrix();
             GlStateManager.disableDepth();
             GlStateManager.enableBlend();
             GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-            mc.fontRendererObj.drawStringWithShadow(
-                    String.format("%d block%s left", count, count != 1 ? "s" : ""),
-                    x,
-                    y,
-                    color
-            );
+            if (displayStack != null) {
+                float iconX = boxX + 4.0F;
+                float iconY = boxY + 1.0F;
+                RenderUtil.renderItemStack(displayStack, iconX, iconY, 1.0F);
+            }
+            float textX = boxX + 4.0F + (displayStack != null ? iconSize + 4.0F : 0.0F);
+            if (useHudFont) {
+                hudFont.drawStringWithShadow(text, textX, y + 2, textColor);
+            } else {
+                mc.fontRendererObj.drawStringWithShadow(text, textX, y + 2, textColor);
+            }
             GlStateManager.disableBlend();
             GlStateManager.enableDepth();
             GlStateManager.popMatrix();
@@ -742,6 +818,7 @@ public class Scaffold extends Module {
             this.lastSlot = -1;
         }
         this.blockCount = -1;
+        this.blockCounterStack = null;
         this.rotationTick = 3;
         this.yaw = -180.0F;
         this.pitch = 0.0F;
@@ -758,6 +835,14 @@ public class Scaffold extends Module {
             mc.thePlayer.inventory.currentItem = this.lastSlot;
         }
         RotationUtil.moveFix = false;
+    }
+
+    private CFontRenderer getHudFont() {
+        if (Client.INSTANCE == null || Client.INSTANCE.getModuleManager() == null) {
+            return null;
+        }
+        HUD hud = (HUD) Client.INSTANCE.getModuleManager().getModule("HUD");
+        return hud != null ? hud.fr : null;
     }
 
     private boolean isReplaceable(BlockPos pos) {
