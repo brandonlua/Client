@@ -57,13 +57,6 @@ public class ColorPicker {
         RenderUtil.drawRoundedRect(dotX - 3, dotY - 3, 6, 6, 3, new Color(255, 255, 255, 200));
         RenderUtil.drawRoundedRect(dotX - 2, dotY - 2, 4, 4, 2, baseColor);
 
-        float hueIndicatorY = y + hsb[0] * height;
-        RenderUtil.drawRect(hueX - 1, hueIndicatorY - 1, barW + 2, 2, new Color(255, 255, 255, 220));
-
-        float alphaPct = baseColor.getAlpha() / 255.0f;
-        float alphaIndicatorY = y + (1.0f - alphaPct) * height;
-        RenderUtil.drawRect(alphaX - 1, alphaIndicatorY - 1, barW + 2, 2, new Color(255, 255, 255, 220));
-
         if (editingColor == colorValue && editingSat && Mouse.isButtonDown(0)) {
             float s = Math.max(0, Math.min((mouseX - x) / satW, 1));
             float b = Math.max(0, Math.min(1.0f - ((mouseY - y) / height), 1));
