@@ -19,7 +19,7 @@ import java.awt.*;
 
 public class ModuleButton {
 
-    private static final ResourceLocation moreIcon = new ResourceLocation("client/icon/more.png");
+    private static final ResourceLocation moreIcon = new ResourceLocation("/client/icon/more.png");
     public static final float ROW_HEIGHT = 18f;
     private static final float ROW_GAP = 3f;
     private static final float ICON_SIZE = 12f;
