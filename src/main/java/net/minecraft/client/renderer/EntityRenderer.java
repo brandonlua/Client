@@ -1,8 +1,8 @@
 package net.minecraft.client.renderer;
 
-import wtf.fentanyl.Client;
-import wtf.fentanyl.client.modules.impl.render.MotionCamera;
-import wtf.fentanyl.event.impl.Event3D;
+import wtf.rania.Client;
+import wtf.rania.client.modules.impl.render.MotionCamera;
+import wtf.rania.event.impl.Event3D;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.gson.JsonSyntaxException;

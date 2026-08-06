@@ -43,7 +43,7 @@ of.message.shaders.nv1=See varjutajapakk vajab uuemat OptiFine'i versiooni: %s
 of.message.shaders.nv2=Kas soovid kindlasti jätkata?
 
 of.message.newVersion=Uus §eOptiFine§f'i versioon on saadaval: §e%s§f
-of.message.java64Bit=Sa võid jõudluse parandamiseks paigaldada §e64-bitise Java§f.
+of.message.java64Bit=Sa võid jõudluse parandamiseks paigaldada §e64-braniae Java§f.
 of.message.openglError=§eOpenGL'i viga§f: %s (%s)
 
 of.message.shaders.loading=Varjutajate laadimine: %s

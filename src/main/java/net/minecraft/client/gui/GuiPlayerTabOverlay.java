@@ -40,7 +40,7 @@ public class GuiPlayerTabOverlay extends Gui
     {
         String name = networkPlayerInfoIn.getDisplayName() != null ? networkPlayerInfoIn.getDisplayName().getFormattedText() : ScorePlayerTeam.formatPlayerName(networkPlayerInfoIn.getPlayerTeam(), networkPlayerInfoIn.getGameProfile().getName());
 
-        wtf.fentanyl.client.modules.impl.misc.NickHider module = (wtf.fentanyl.client.modules.impl.misc.NickHider) wtf.fentanyl.Client.INSTANCE.getModuleManager().getModule("NickHider");
+        wtf.rania.client.modules.impl.misc.NickHider module = (wtf.rania.client.modules.impl.misc.NickHider) wtf.rania.Client.INSTANCE.getModuleManager().getModule("NickHider");
         if (module != null && module.isToggled() && networkPlayerInfoIn.getGameProfile().getName().equals(this.mc.getSession().getUsername())) {
             name = name.replace(this.mc.getSession().getUsername(), module.getNick());
         }

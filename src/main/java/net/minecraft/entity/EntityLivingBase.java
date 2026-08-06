@@ -1,7 +1,7 @@
 package net.minecraft.entity;
 
-import wtf.fentanyl.Client;
-import wtf.fentanyl.client.modules.impl.render.Animations;
+import wtf.rania.Client;
+import wtf.rania.client.modules.impl.render.Animations;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Maps;

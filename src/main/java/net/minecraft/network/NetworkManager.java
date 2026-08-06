@@ -1,7 +1,7 @@
 package net.minecraft.network;
 
-import wtf.fentanyl.Client;
-import wtf.fentanyl.event.impl.PacketEvent;
+import wtf.rania.Client;
+import wtf.rania.event.impl.PacketEvent;
 import com.google.common.collect.Queues;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.netty.bootstrap.Bootstrap;

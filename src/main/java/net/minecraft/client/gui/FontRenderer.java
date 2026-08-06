@@ -1,6 +1,6 @@
 package net.minecraft.client.gui;
 
-import wtf.fentanyl.util.render.RenderUtil;
+import wtf.rania.util.render.RenderUtil;
 import com.ibm.icu.text.ArabicShaping;
 import com.ibm.icu.text.ArabicShapingException;
 import com.ibm.icu.text.Bidi;

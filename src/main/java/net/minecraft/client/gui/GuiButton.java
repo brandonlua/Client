@@ -6,13 +6,13 @@ import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.util.ResourceLocation;
-import wtf.fentanyl.util.animations.Animation;
-import wtf.fentanyl.util.animations.Direction;
-import wtf.fentanyl.util.animations.impl.DecelerateAnimation;
-import wtf.fentanyl.client.font.CFontRenderer;
-import wtf.fentanyl.client.processes.FontProcess;
-import wtf.fentanyl.util.render.RenderUtil;
-import wtf.fentanyl.util.render.shaders.impl.Shadow;
+import wtf.rania.util.animations.Animation;
+import wtf.rania.util.animations.Direction;
+import wtf.rania.util.animations.impl.DecelerateAnimation;
+import wtf.rania.client.font.CFontRenderer;
+import wtf.rania.client.processes.FontProcess;
+import wtf.rania.util.render.RenderUtil;
+import wtf.rania.util.render.shaders.impl.Shadow;
 
 import java.awt.*;
 

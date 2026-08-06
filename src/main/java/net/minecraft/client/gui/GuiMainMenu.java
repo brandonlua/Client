@@ -1,6 +1,6 @@
 package net.minecraft.client.gui;
-import wtf.fentanyl.client.font.CFontRenderer;
-import wtf.fentanyl.util.render.shaders.impl.MainMenu;
+import wtf.rania.client.font.CFontRenderer;
+import wtf.rania.util.render.shaders.impl.MainMenu;
 import org.lwjgl.opengl.GL11;
 
 import com.google.common.base.Strings;
@@ -202,7 +202,7 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
 
         if (button.id == 14 && this.altsButton.visible)
         {
-            this.mc.displayGuiScreen(new wtf.fentanyl.gui.alt.AltManagerGui());
+            this.mc.displayGuiScreen(new wtf.rania.gui.alt.AltManagerGui());
         }
 
         if (button.id == 4)
@@ -455,7 +455,7 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
         MainMenu.draw(initTime);
         GlStateManager.enableAlpha();
 
-        wtf.fentanyl.client.processes.FontProcess.getScaledFont("sans", 3.0f).drawCenteredString("Itis", this.width / 2, 35, -1);
+        wtf.rania.client.processes.FontProcess.getScaledFont("sans", 3.0f).drawCenteredString("Rania", this.width / 2, 35, -1);
 
         Tessellator tessellator = Tessellator.getInstance();
         WorldRenderer worldrenderer = tessellator.getWorldRenderer();

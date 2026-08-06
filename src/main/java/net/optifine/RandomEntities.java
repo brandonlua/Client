@@ -12,8 +12,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 
-import wtf.fentanyl.Client;
-import wtf.fentanyl.event.impl.EventWorld;
+import wtf.rania.Client;
+import wtf.rania.event.impl.EventWorld;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.entity.DataWatcher;

@@ -1,8 +1,8 @@
 package net.minecraft.client.model;
 
-import wtf.fentanyl.Client;
-import wtf.fentanyl.client.modules.impl.combat.KillAura;
-import wtf.fentanyl.client.modules.impl.render.Animations;
+import wtf.rania.Client;
+import wtf.rania.client.modules.impl.combat.KillAura;
+import wtf.rania.client.modules.impl.render.Animations;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;

@@ -1,7 +1,7 @@
 package net.minecraft.client.gui;
 
-import wtf.fentanyl.Client;
-import wtf.fentanyl.event.impl.Event2D;
+import wtf.rania.Client;
+import wtf.rania.event.impl.Event2D;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;

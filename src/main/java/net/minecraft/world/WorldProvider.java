@@ -79,9 +79,9 @@ public abstract class WorldProvider
     public float calculateCelestialAngle(long worldTime, float partialTicks)
     {
         // ambience rendering stuf
-        wtf.fentanyl.client.modules.Module ambienceModule = wtf.fentanyl.Client.INSTANCE.getModuleManager().getModule(wtf.fentanyl.client.modules.impl.render.Ambience.class);
+        wtf.rania.client.modules.Module ambienceModule = wtf.rania.Client.INSTANCE.getModuleManager().getModule(wtf.rania.client.modules.impl.render.Ambience.class);
         if (ambienceModule != null && ambienceModule.isToggled()) {
-            worldTime = (long) ((wtf.fentanyl.client.modules.impl.render.Ambience) ambienceModule).time.get();
+            worldTime = (long) ((wtf.rania.client.modules.impl.render.Ambience) ambienceModule).time.get();
         }
 
         int i = (int)(worldTime % 24000L);

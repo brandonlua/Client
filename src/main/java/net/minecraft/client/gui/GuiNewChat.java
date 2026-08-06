@@ -1,6 +1,6 @@
 package net.minecraft.client.gui;
 
-import wtf.fentanyl.client.modules.impl.misc.NickHider;
+import wtf.rania.client.modules.impl.misc.NickHider;
 import com.google.common.collect.Lists;
 import java.util.Iterator;
 import java.util.List;
@@ -82,7 +82,7 @@ public class GuiNewChat extends Gui
                                 int j2 = -i1 * 9;
                                 drawRect(i2, j2 - 9, i2 + l + 4, j2, l1 / 2 << 24);
                                 String s = chatline.getChatComponent().getFormattedText();
-                                NickHider module = (NickHider) wtf.fentanyl.Client.INSTANCE.getModuleManager().getModule("NickHider");
+                                NickHider module = (NickHider) wtf.rania.Client.INSTANCE.getModuleManager().getModule("NickHider");
                                 if (module != null && module.isToggled()) {
                                     s = s.replace(this.mc.getSession().getUsername(), module.getNick());
                                 }

@@ -142,8 +142,8 @@ public class InventoryPlayer implements IInventory
             direction = -1;
         }
 
-        wtf.fentanyl.event.impl.game.player.SwapItemEvent event = new wtf.fentanyl.event.impl.game.player.SwapItemEvent(this.currentItem, direction);
-        wtf.fentanyl.Client.BUS.post(event);
+        wtf.rania.event.impl.game.player.SwapItemEvent event = new wtf.rania.event.impl.game.player.SwapItemEvent(this.currentItem, direction);
+        wtf.rania.Client.BUS.post(event);
         if (event.isCancelled())
         {
             return;

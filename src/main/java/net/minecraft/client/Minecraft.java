@@ -2,10 +2,10 @@ package net.minecraft.client;
 import net.minecraft.client.gui.*;
 import org.lwjgl.opengl.GL11;
 
-import wtf.fentanyl.Client;
-import wtf.fentanyl.client.modules.impl.render.Animations;
-import wtf.fentanyl.event.impl.game.player.TickEvent;
-import wtf.fentanyl.event.impl.EventKey;
+import wtf.rania.Client;
+import wtf.rania.client.modules.impl.render.Animations;
+import wtf.rania.event.impl.game.player.TickEvent;
+import wtf.rania.event.impl.EventKey;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -170,7 +170,7 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.*;
 import org.lwjgl.util.glu.GLU;
-import wtf.fentanyl.gui.GuiSplash;
+import wtf.rania.gui.GuiSplash;
 
 public class Minecraft implements IThreadListener, IPlayerUsage
 {
@@ -1355,8 +1355,8 @@ public class Minecraft implements IThreadListener, IPlayerUsage
 
     public void clickMouse()
     {
-        wtf.fentanyl.event.impl.game.player.LeftClickMouseEvent event = new wtf.fentanyl.event.impl.game.player.LeftClickMouseEvent();
-        wtf.fentanyl.Client.BUS.post(event);
+        wtf.rania.event.impl.game.player.LeftClickMouseEvent event = new wtf.rania.event.impl.game.player.LeftClickMouseEvent();
+        wtf.rania.Client.BUS.post(event);
         if (event.isCancelled()) return;
 
         if (this.leftClickCounter <= 0)

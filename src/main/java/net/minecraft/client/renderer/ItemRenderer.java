@@ -1,9 +1,9 @@
 package net.minecraft.client.renderer;
 
-import wtf.fentanyl.Client;
-import wtf.fentanyl.client.modules.impl.combat.KillAura;
-import wtf.fentanyl.client.modules.impl.render.Animations;
-import wtf.fentanyl.client.modules.impl.render.NoFire;
+import wtf.rania.Client;
+import wtf.rania.client.modules.impl.combat.KillAura;
+import wtf.rania.client.modules.impl.render.Animations;
+import wtf.rania.client.modules.impl.render.NoFire;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;

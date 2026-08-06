@@ -1,9 +1,9 @@
 package net.minecraft.client.renderer.entity;
 
-import wtf.fentanyl.Client;
-import wtf.fentanyl.client.modules.impl.render.Chams;
-import wtf.fentanyl.event.impl.EventRenderNameTag;
-import wtf.fentanyl.util.player.RotationUtil;
+import wtf.rania.Client;
+import wtf.rania.client.modules.impl.render.Chams;
+import wtf.rania.event.impl.EventRenderNameTag;
+import wtf.rania.util.player.RotationUtil;
 import com.google.common.collect.Lists;
 import java.nio.FloatBuffer;
 import java.util.List;

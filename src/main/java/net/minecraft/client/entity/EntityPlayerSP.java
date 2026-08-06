@@ -1,11 +1,11 @@
 package net.minecraft.client.entity;
 
-import wtf.fentanyl.Client;
-import wtf.fentanyl.event.impl.UpdateEvent;
-import wtf.fentanyl.event.impl.game.player.MotionEvent;
-import wtf.fentanyl.event.impl.game.player.MoveEvent;
-import wtf.fentanyl.event.impl.game.player.SlowdownEvent;
-import wtf.fentanyl.util.player.RotationUtil;
+import wtf.rania.Client;
+import wtf.rania.event.impl.UpdateEvent;
+import wtf.rania.event.impl.game.player.MotionEvent;
+import wtf.rania.event.impl.game.player.MoveEvent;
+import wtf.rania.event.impl.game.player.SlowdownEvent;
+import wtf.rania.util.player.RotationUtil;
 import me.zero.alpine.bus.EventManager;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;

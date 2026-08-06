@@ -1,6 +1,6 @@
 package net.minecraft.client.renderer.entity;
 
-import wtf.fentanyl.util.math.MathUtil;
+import wtf.rania.util.math.MathUtil;
 import com.google.common.collect.Maps;
 import java.util.Collections;
 import java.util.Map;

@@ -1,7 +1,7 @@
 package net.minecraft.client.renderer.entity;
 
-import wtf.fentanyl.Client;
-import wtf.fentanyl.client.modules.impl.render.BrightPlayer;
+import wtf.rania.Client;
+import wtf.rania.client.modules.impl.render.BrightPlayer;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.model.ModelPlayer;
@@ -146,7 +146,7 @@ public class RenderPlayer extends RendererLivingEntity<AbstractClientPlayer>
             }
         }
 
-        wtf.fentanyl.client.modules.impl.misc.NickHider module = (wtf.fentanyl.client.modules.impl.misc.NickHider) wtf.fentanyl.Client.INSTANCE.getModuleManager().getModule("NickHider");
+        wtf.rania.client.modules.impl.misc.NickHider module = (wtf.rania.client.modules.impl.misc.NickHider) wtf.rania.Client.INSTANCE.getModuleManager().getModule("NickHider");
         if (module != null && module.isToggled()) {
             str = str.replace(net.minecraft.client.Minecraft.getMinecraft().getSession().getUsername(), module.getNick());
         }

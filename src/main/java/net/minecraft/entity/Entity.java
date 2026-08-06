@@ -454,8 +454,8 @@ public abstract class Entity implements ICommandSender
             boolean flag = this.onGround && this.isSneaking() && this instanceof EntityPlayer;
 
             if (this instanceof net.minecraft.client.entity.EntityPlayerSP) {
-                wtf.fentanyl.event.impl.game.player.SafeWalkEvent safeWalkEvent = new wtf.fentanyl.event.impl.game.player.SafeWalkEvent(flag);
-                wtf.fentanyl.Client.BUS.post(safeWalkEvent);
+                wtf.rania.event.impl.game.player.SafeWalkEvent safeWalkEvent = new wtf.rania.event.impl.game.player.SafeWalkEvent(flag);
+                wtf.rania.Client.BUS.post(safeWalkEvent);
                 flag = safeWalkEvent.isSafeWalk();
             }
 
