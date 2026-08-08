@@ -7,9 +7,9 @@ import wtf.rania.gui.click.DropdownGUI;
 import org.lwjgl.input.Keyboard;
 
 @ModuleInfo(name = "ClickGui", category = Category.RENDER)
-public class ClickGui extends Module {
+public class ClickGuiModule extends Module {
 
-    public ClickGui() {
+    public ClickGuiModule() {
         setKey(Keyboard.KEY_RSHIFT);
     }
 
