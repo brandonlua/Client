@@ -32,7 +32,7 @@ public enum Client implements Subscriber {
     INSTANCE;
 
     public String name = "Rania";
-    public String version = "dev 1.1";
+    public String version = "1.2";
 
     public final Minecraft mc = Minecraft.getMinecraft();
     private ModuleManager moduleManager;

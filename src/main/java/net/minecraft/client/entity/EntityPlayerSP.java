@@ -3,13 +3,10 @@ package net.minecraft.client.entity;
 import wtf.rania.Client;
 import wtf.rania.event.impl.UpdateEvent;
 import wtf.rania.event.impl.game.player.MotionEvent;
-import wtf.rania.event.impl.game.player.MoveEvent;
 import wtf.rania.event.impl.game.player.SlowdownEvent;
-import wtf.rania.util.player.RotationUtil;
-import me.zero.alpine.bus.EventManager;
+import wtf.rania.utility.player.RotationUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
-import net.minecraft.block.BlockGlass;
 import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
@@ -37,7 +34,6 @@ import net.minecraft.entity.IMerchant;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.passive.EntityHorse;
-import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
@@ -60,10 +56,8 @@ import net.minecraft.util.*;
 import net.minecraft.world.IInteractionObject;
 import net.minecraft.world.World;
 
-import static java.lang.Math.toRadians;
 import static net.minecraft.potion.Potion.*;
 import static net.minecraft.potion.Potion.jump;
-import static net.minecraft.util.MathHelper.ceiling_double_int;
 
 public class EntityPlayerSP extends AbstractClientPlayer {
     public final NetHandlerPlayClient sendQueue;

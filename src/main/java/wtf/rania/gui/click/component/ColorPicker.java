@@ -1,123 +1,175 @@
 package wtf.rania.gui.click.component;
 
+import wtf.rania.client.font.CFontRenderer;
 import wtf.rania.client.modules.values.impl.ColorValue;
-import wtf.rania.util.render.RenderUtil;
-import org.lwjgl.input.Mouse;
+import wtf.rania.utility.render.RenderUtil;
 
-import java.awt.*;
+import java.awt.Color;
 
 public class ColorPicker {
 
-    private ColorValue expandedColorValue = null;
-    private ColorValue editingColor = null;
-    private boolean editingHue = false;
-    private boolean editingSat = false;
-    private boolean editingAlpha = false;
+    public static float height = 13f;
+    static float extraH = 60f;
+    static float svSize = 50f;
+    static float barW = 10f;
+    static float spd = 14f;
+    static float offset = 15f;
 
-    public void render(float x, float y, float width, float height, ColorValue colorValue, int mouseX, int mouseY) {
-        float barW = 8;
-        float gap = 3;
-        float alphaX = x + width - barW;
-        float hueX = alphaX - barW - gap;
-        float satW = hueX - x - gap;
+    ColorValue val;
+    boolean open;
+    float prog = 0f;
+    long last = System.currentTimeMillis();
 
-        for (int py = 0; py < (int) height; py++) {
-            for (int px = 0; px < (int) satW; px++) {
-                float s = px / satW;
-                float b = 1.0f - (py / height);
-                Color c = Color.getHSBColor(colorValue.getHue(), s, b);
-                RenderUtil.drawRect(x + px, y + py, 1, 1, c);
+    boolean dragSv;
+    boolean dragHue;
+    boolean dragBr;
+
+    public ColorPicker(ColorValue val) {
+        this.val = val;
+    }
+
+    public float getHeight() {
+        return height + extraH * ease(prog);
+    }
+
+    void tick() {
+        long now = System.currentTimeMillis();
+        float dt = (now - last) / 1000f;
+        if (dt > 0.016f) dt = 0.016f;
+        last = now;
+
+        float t = 0f;
+        if (open) t = 1f;
+
+        if (prog < t) {
+            prog += dt * spd;
+            if (prog > t) prog = t;
+        } else if (prog > t) {
+            prog -= dt * spd;
+            if (prog < t) prog = t;
+        }
+    }
+
+    float ease(float t) {
+        return 1f - (1f - t) * (1f - t) * (1f - t);
+    }
+
+    public void draw(float x, float y, float w, CFontRenderer font) {
+        tick();
+        float e = ease(prog);
+
+        RenderUtil.drawRect(x, y, w, height, GuiTheme.BG_DARK);
+        font.drawString(val.getName(), x + 4, y + 2, GuiTheme.TEXT);
+
+        Color col = val.get();
+        float sw = 8;
+        String hex = String.format("#%06X", col.getRGB() & 0xFFFFFF);
+        float hw = font.getStringWidth(hex);
+        float swX = x + w - sw - 4;
+        float hexX = swX - hw - 4;
+
+        font.drawString(hex, hexX, y + 2, GuiTheme.TEXT_SECONDARY);
+        RenderUtil.drawRect(swX, y + (height - sw) / 2f, sw, sw, col.getRGB());
+
+        if (e < 0.02f) {
+            return;
+        }
+
+        float exh = extraH * e;
+        RenderUtil.drawRect(x, y + height, w, exh, GuiTheme.BG_DARK);
+
+        float by = y + height + 4;
+        float bx = x + offset;
+
+        float[] hsb = Color.RGBtoHSB(col.getRed(), col.getGreen(), col.getBlue(), null);
+        float hue = hsb[0];
+
+        int hueCol = Color.HSBtoRGB(hue, 1f, 1f);
+        RenderUtil.drawHorizontalGradientSideways(bx, by, svSize, svSize, 0xFFFFFFFF, hueCol | 0xFF000000);
+        RenderUtil.drawGradientRect(bx, by, svSize, svSize, 0x00000000, 0xFF000000);
+
+        float hueX = bx + svSize + 6;
+        int[] cols = {0xFFFF0000, 0xFFFFFF00, 0xFF00FF00, 0xFF00FFFF, 0xFF0000FF, 0xFFFF00FF, 0xFFFF0000};
+        float segH = svSize / 6f;
+        for (int i = 0; i < 6; i++) {
+            RenderUtil.drawGradientRect(hueX, by + i * segH, barW, segH, cols[i], cols[i + 1]);
+        }
+
+        float brX = hueX + barW + 6;
+        RenderUtil.drawGradientRect(brX, by, barW, svSize, 0xFFFFFFFF, 0xFF000000);
+    }
+
+    public void mouseClick(float mx, float my, float x, float y, float w) {
+        if (mx >= x && mx <= x + w && my >= y && my <= y + height) {
+            open = !open;
+            if (!open) {
+                dragSv = false;
+                dragHue = false;
+                dragBr = false;
             }
+            return;
         }
 
-        for (int i = 0; i < (int) height; i++) {
-            float h = i / height;
-            Color hc = Color.getHSBColor(h, 1.0f, 1.0f);
-            RenderUtil.drawRect(hueX, y + i, barW, 1, hc);
-        }
+        if (!open) return;
 
-        Color baseColor = colorValue.get();
-        for (int i = 0; i < (int) height; i++) {
-            float a = 1.0f - (i / height);
-            Color ac = new Color(baseColor.getRed(), baseColor.getGreen(), baseColor.getBlue(), (int) (a * 255));
-            RenderUtil.drawRect(alphaX, y + i, barW, 1, new Color(40, 40, 40));
-            RenderUtil.drawRect(alphaX, y + i, barW, 1, ac);
-        }
+        float by = y + height + 4;
+        float bx = x + offset;
+        float hueX = bx + svSize + 6;
+        float brX = hueX + barW + 6;
 
-        RenderUtil.drawRoundedRect(x, y, satW, height, 2, new Color(0, 0, 0, 0));
-        RenderUtil.drawRoundedRect(hueX, y, barW, height, 2, new Color(0, 0, 0, 0));
-        RenderUtil.drawRoundedRect(alphaX, y, barW, height, 2, new Color(0, 0, 0, 0));
-        RenderUtil.drawRoundedRect(x - 1, y - 1, satW + 2, height + 2, 2, new Color(255, 255, 255, 15));
-        RenderUtil.drawRoundedRect(hueX - 1, y - 1, barW + 2, height + 2, 2, new Color(255, 255, 255, 15));
-        RenderUtil.drawRoundedRect(alphaX - 1, y - 1, barW + 2, height + 2, 2, new Color(255, 255, 255, 15));
-
-        float[] hsb = Color.RGBtoHSB(baseColor.getRed(), baseColor.getGreen(), baseColor.getBlue(), null);
-        float dotX = x + hsb[1] * satW;
-        float dotY = y + (1.0f - hsb[2]) * height;
-        RenderUtil.drawRoundedRect(dotX - 3, dotY - 3, 6, 6, 3, new Color(255, 255, 255, 200));
-        RenderUtil.drawRoundedRect(dotX - 2, dotY - 2, 4, 4, 2, baseColor);
-
-        if (editingColor == colorValue && editingSat && Mouse.isButtonDown(0)) {
-            float s = Math.max(0, Math.min((mouseX - x) / satW, 1));
-            float b = Math.max(0, Math.min(1.0f - ((mouseY - y) / height), 1));
-            colorValue.setSaturation(s);
-            colorValue.setBrightness(b);
-        }
-        if (editingColor == colorValue && editingHue && Mouse.isButtonDown(0)) {
-            float h = Math.max(0, Math.min((mouseY - y) / height, 1));
-            colorValue.setHue(h);
-        }
-        if (editingColor == colorValue && editingAlpha && Mouse.isButtonDown(0)) {
-            float a = Math.max(0, Math.min(1.0f - ((mouseY - y) / height), 1));
-            colorValue.setAlpha(a);
+        if (mx >= bx && mx <= bx + svSize && my >= by && my <= by + svSize) {
+            dragSv = true;
+            setSv(mx, my, bx, by);
+        } else if (mx >= hueX && mx <= hueX + barW && my >= by && my <= by + svSize) {
+            dragHue = true;
+            setHue(my, by);
+        } else if (mx >= brX && mx <= brX + barW && my >= by && my <= by + svSize) {
+            dragBr = true;
+            setBr(my, by);
         }
     }
 
-    public void handleClick(float x, float y, float width, float height, ColorValue colorValue, int mouseX, int mouseY) {
-        float barW = 8;
-        float gap = 3;
-        float alphaX = x + width - barW;
-        float hueX = alphaX - barW - gap;
-        float satW = hueX - x - gap;
+    public void mouseDrag(float mx, float my, float x, float y) {
+        if (!open) return;
 
-        if (isHovered(mouseX, mouseY, x, y, satW, height)) {
-            editingColor = colorValue;
-            editingSat = true;
-            editingHue = false;
-            editingAlpha = false;
-        } else if (isHovered(mouseX, mouseY, hueX, y, barW, height)) {
-            editingColor = colorValue;
-            editingHue = true;
-            editingSat = false;
-            editingAlpha = false;
-        } else if (isHovered(mouseX, mouseY, alphaX, y, barW, height)) {
-            editingColor = colorValue;
-            editingAlpha = true;
-            editingHue = false;
-            editingSat = false;
-        }
+        float by = y + height + 4;
+        float bx = x + offset;
+
+        if (dragSv) setSv(mx, my, bx, by);
+        if (dragHue) setHue(my, by);
+        if (dragBr) setBr(my, by);
     }
 
-    public void toggle(ColorValue colorValue) {
-        if (expandedColorValue == colorValue) {
-            expandedColorValue = null;
-        } else {
-            expandedColorValue = colorValue;
-        }
+    public void mouseRelease() {
+        dragSv = false;
+        dragHue = false;
+        dragBr = false;
     }
 
-    public boolean isExpanded(ColorValue colorValue) {
-        return expandedColorValue == colorValue;
+    void setSv(float mx, float my, float bx, float by) {
+        float sat = clamp((mx - bx) / svSize);
+        float bright = 1f - clamp((my - by) / svSize);
+        val.setSaturation(sat);
+        val.setBrightness(bright);
     }
 
-    public void reset() {
-        editingColor = null;
-        editingHue = false;
-        editingSat = false;
-        editingAlpha = false;
+    void setHue(float my, float by) {
+        float hue = clamp((my - by) / svSize);
+        val.setHue(hue);
     }
 
-    private boolean isHovered(int mouseX, int mouseY, float x, float y, float width, float height) {
-        return mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
+    void setBr(float my, float by) {
+        float bright = 1f - clamp((my - by) / svSize);
+        val.setBrightness(bright);
+    }
+
+    float clamp(float v) {
+        if (v < 0f) return 0f;
+        if (v > 1f) return 1f;
+        return v;
+    }
+
+    public ColorValue getSetting() {
+        return val;
     }
 }

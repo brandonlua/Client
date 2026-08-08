@@ -1,6 +1,5 @@
 package wtf.rania.gui.alt;
 
-import java.awt.Color;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -10,7 +9,6 @@ import java.security.SecureRandom;
 import wtf.rania.Client;
 import wtf.rania.client.font.CFontRenderer;
 import wtf.rania.client.processes.FontProcess;
-import wtf.rania.util.render.RenderUtil;
 import org.lwjgl.input.Keyboard;
 
 import net.minecraft.client.Minecraft;
@@ -46,7 +44,7 @@ public class GuiLogin extends GuiScreen {
             this.drawGradientRect(0, 0, this.width, this.height, j1, k1);
         }
 
-        wtf.rania.util.render.shaders.impl.MainMenu.draw(initTime);
+        wtf.rania.utility.render.shaders.impl.MainMenu.draw(initTime);
 
         float middleX = width / 2f;
         float middleY = height / 2f;

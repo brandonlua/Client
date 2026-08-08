@@ -7,7 +7,7 @@ import wtf.rania.client.font.CFontRenderer;
 import wtf.rania.client.processes.FontProcess;
 import wtf.rania.gui.alt.microsoft.GuiLoginMicrosoft;
 import wtf.rania.gui.alt.microsoft.MicrosoftOAuthTranslation;
-import wtf.rania.util.render.RenderUtil;
+import wtf.rania.utility.render.RenderUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.Session;
@@ -91,7 +91,7 @@ public class AltManagerGui extends GuiScreen {
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-        wtf.rania.util.render.shaders.impl.MainMenu.draw(initTime);
+        wtf.rania.utility.render.shaders.impl.MainMenu.draw(initTime);
 
         int panelW = Math.min(330, this.width - 36);
         int panelX = this.width / 2 - panelW / 2;

@@ -14,10 +14,10 @@ import wtf.rania.client.widget.ArrayListWidget;
 import wtf.rania.client.widget.DisplayInfoWidget;
 import wtf.rania.client.widget.SessionInfoWidget;
 import wtf.rania.event.impl.Event2D;
-import wtf.rania.util.render.RenderUtil;
-import wtf.rania.util.render.shaders.impl.Blur;
-import wtf.rania.util.render.shaders.impl.Bloom;
-import wtf.rania.util.render.shaders.impl.Shadow;
+import wtf.rania.utility.render.RenderUtil;
+import wtf.rania.utility.render.shaders.impl.Blur;
+import wtf.rania.utility.render.shaders.impl.Bloom;
+import wtf.rania.utility.render.shaders.impl.Shadow;
 import me.zero.alpine.listener.Listener;
 import me.zero.alpine.listener.Subscribe;
 import net.minecraft.client.gui.Gui;
@@ -31,7 +31,7 @@ import java.awt.Font;
 public class HUD extends Module {
 
     private final ModeValue watermarkMode = new ModeValue("Watermark", new String[]{"Default", "Weedhack", "Vestige", "Custom", "None"}, "Default", this);
-    private final TextValue customText = new TextValue("Custom", "Rania", this, () -> watermarkMode.is("Custom"));
+    private final TextValue customText = new TextValue("Custom", "</Rania>", this, () -> watermarkMode.is("Custom"));
     public final ColorValue theme = new ColorValue("Theme", new Color(255, 50, 50), this);
     public final ModeValue fontMode = new ModeValue("Font", new String[]{"tahoma", "arial", "client", "noto", "sans"}, "sans", this);
 
@@ -136,7 +136,7 @@ public class HUD extends Module {
     }
 
     private void renderDefaultWatermark(float x, float y) {
-        String name = Client.INSTANCE.getName() + " " + Client.INSTANCE.getVersion();
+        String name = Client.INSTANCE.getName();
         fr.drawString(name, x + 3, y + 2, Color.WHITE.getRGB());
     }
 

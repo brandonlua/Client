@@ -1,7 +1,7 @@
 package wtf.rania.gui.components;
 
 import wtf.rania.client.font.CFontRenderer;
-import wtf.rania.util.render.RenderUtil;
+import wtf.rania.utility.render.RenderUtil;
 
 import java.awt.*;
 

@@ -3,8 +3,8 @@ package wtf.rania.client.widget;
 import wtf.rania.Client;
 import wtf.rania.client.font.CFontRenderer;
 import wtf.rania.client.modules.Module;
-import wtf.rania.util.animations.Animation;
-import wtf.rania.util.animations.Direction;
+import wtf.rania.utility.animations.Animation;
+import wtf.rania.utility.animations.Direction;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 

@@ -8,7 +8,7 @@ import wtf.rania.client.modules.ModuleInfo;
 import wtf.rania.client.modules.values.impl.ModeValue;
 import wtf.rania.client.modules.values.impl.SliderValue;
 import wtf.rania.event.impl.UpdateEvent;
-import wtf.rania.util.math.TimerUtil;
+import wtf.rania.utility.math.TimerUtil;
 
 import java.lang.reflect.Field;
 

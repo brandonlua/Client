@@ -44,12 +44,12 @@ import wtf.rania.event.impl.game.player.RightClickMouseEvent;
 import wtf.rania.event.impl.game.player.SafeWalkEvent;
 import wtf.rania.event.impl.game.player.StrafeEvent;
 import wtf.rania.event.impl.game.player.SwapItemEvent;
-import wtf.rania.util.player.MovementUtil;
-import wtf.rania.util.player.RotationUtil;
-import wtf.rania.util.render.RenderUtil;
-import wtf.rania.util.render.shaders.impl.Blur;
-import wtf.rania.util.render.shaders.impl.Bloom;
-import wtf.rania.util.render.shaders.impl.Shadow;
+import wtf.rania.utility.player.MovementUtil;
+import wtf.rania.utility.player.RotationUtil;
+import wtf.rania.utility.render.RenderUtil;
+import wtf.rania.utility.render.shaders.impl.Blur;
+import wtf.rania.utility.render.shaders.impl.Bloom;
+import wtf.rania.utility.render.shaders.impl.Shadow;
 
 @ModuleInfo(name = "Scaffold", category = Category.WORLD)
 public class Scaffold extends Module {

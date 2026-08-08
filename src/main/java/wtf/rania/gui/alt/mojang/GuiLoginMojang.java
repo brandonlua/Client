@@ -1,13 +1,11 @@
 package wtf.rania.gui.alt.mojang;
 
-import java.awt.Color;
 import java.io.IOException;
 
 import wtf.rania.client.font.CFontRenderer;
 import wtf.rania.client.processes.FontProcess;
 import wtf.rania.gui.alt.AltManagerGui;
 import wtf.rania.gui.alt.SessionChanger;
-import wtf.rania.util.render.RenderUtil;
 import org.lwjgl.input.Keyboard;
 
 import net.minecraft.client.gui.GuiButton;
@@ -55,7 +53,7 @@ public class GuiLoginMojang extends GuiScreen {
             this.drawGradientRect(0, 0, this.width, this.height, j1, k1);
         }
 
-        wtf.rania.util.render.shaders.impl.MainMenu.draw(initTime);
+        wtf.rania.utility.render.shaders.impl.MainMenu.draw(initTime);
 
         float middleX = width / 2f;
         float middleY = height / 2f;

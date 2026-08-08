@@ -12,7 +12,7 @@ import com.google.gson.JsonParser;
 import wtf.rania.Client;
 import wtf.rania.client.font.CFontRenderer;
 import wtf.rania.client.processes.FontProcess;
-import wtf.rania.util.web.Browser;
+import wtf.rania.utility.web.Browser;
 import org.lwjgl.input.Keyboard;
 
 import net.minecraft.client.Minecraft;
@@ -60,7 +60,7 @@ public class GuiLoginToken extends GuiScreen {
 
     @Override
     public void drawScreen(final int mouseX, final int mouseY, final float partialTicks) {
-        wtf.rania.util.render.shaders.impl.MainMenu.draw(initTime);
+        wtf.rania.utility.render.shaders.impl.MainMenu.draw(initTime);
 
         float middleX = width / 2f;
         float middleY = height / 2f;

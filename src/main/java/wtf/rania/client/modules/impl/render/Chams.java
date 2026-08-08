@@ -5,7 +5,7 @@ import wtf.rania.client.modules.Module;
 import wtf.rania.client.modules.ModuleInfo;
 import wtf.rania.client.modules.values.impl.BoolValue;
 import wtf.rania.client.modules.values.impl.ColorValue;
-import wtf.rania.util.render.RenderUtil;
+import wtf.rania.utility.render.RenderUtil;
 import net.minecraft.client.renderer.OpenGlHelper;
 
 import java.awt.*;
