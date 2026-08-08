@@ -10,7 +10,7 @@ import wtf.rania.client.modules.values.impl.ColorValue;
 import wtf.rania.client.modules.values.impl.ModeValue;
 import wtf.rania.client.modules.values.impl.SliderValue;
 import wtf.rania.client.modules.values.impl.TextValue;
-import wtf.rania.client.widget.ArrayListWidget;
+import wtf.rania.client.widget.ModuleListWidget;
 import wtf.rania.client.widget.DisplayInfoWidget;
 import wtf.rania.client.widget.SessionInfoWidget;
 import wtf.rania.event.impl.Event2D;
@@ -35,11 +35,16 @@ public class HUD extends Module {
     public final ColorValue theme = new ColorValue("Theme", new Color(255, 50, 50), this);
     public final ModeValue fontMode = new ModeValue("Font", new String[]{"tahoma", "arial", "client", "noto", "sans"}, "sans", this);
 
-    private final BoolValue arrayList = new BoolValue("ArrayList", true, this);
-    private final ModeValue arrayListPos = new ModeValue("Position", new String[]{"Top Left", "Top Right", "Bottom Left", "Bottom Right"}, "Top Right", this, () -> arrayList.get());
-    private final SliderValue background = new SliderValue("Opacity", 100F, 0F, 255F, this, () -> arrayList.get());
-    private final BoolValue suffix = new BoolValue("Suffix", true, this, () -> arrayList.get());
-    private final ModeValue outline = new ModeValue("Outline", new String[]{"None", "Left", "Right", "Top"}, "None", this, () -> arrayList.get());
+    private final BoolValue moduleList = new BoolValue("ModuleList", true, this);
+    private final ModeValue moduleListPos = new ModeValue("Position", new String[]{"Top Left", "Top Right", "Bottom Left", "Bottom Right"}, "Top Right", this, () -> moduleList.get());
+    private final SliderValue background = new SliderValue("Opacity", 100F, 0F, 255F, this, () -> moduleList.get());
+    private final BoolValue suffix = new BoolValue("Suffix", true, this, () -> moduleList.get());
+    private final ModeValue outline = new ModeValue("Outline", new String[]{"None", "Left", "Right", "Top"}, "None", this, () -> moduleList.get());
+    private final ModeValue moduleListColorMode = new ModeValue("Color Mode", new String[]{"Static", "Wave"}, "Static", this, () -> moduleList.get());
+    private final ColorValue moduleListStaticColor = new ColorValue("Color", new Color(255, 50, 50), this, () -> moduleList.get() && moduleListColorMode.is("Static"));
+    private final ColorValue moduleListWaveColor1 = new ColorValue("Wave Color 1", new Color(255, 50, 50), this, () -> moduleList.get() && moduleListColorMode.is("Wave"));
+    private final ColorValue moduleListWaveColor2 = new ColorValue("Wave Color 2", new Color(50, 50, 255), this, () -> moduleList.get() && moduleListColorMode.is("Wave"));
+    private final SliderValue moduleListWaveSpeed = new SliderValue("Wave Speed", 3000F, 500F, 10000F, 100F, this, () -> moduleList.get() && moduleListColorMode.is("Wave"));
 
     private final BoolValue sessionInfo = new BoolValue("Session Information", false, this);
 
@@ -48,7 +53,7 @@ public class HUD extends Module {
 
     public SessionInfoWidget sessionInfoWidget;
     public DisplayInfoWidget displayInfoWidget;
-    public ArrayListWidget arrayListWidget;
+    public ModuleListWidget moduleListWidget;
 
     private Framebuffer stencilFramebuffer = new Framebuffer(1, 1, false);
     private Framebuffer shadowFramebuffer = new Framebuffer(1, 1, false);
@@ -80,8 +85,8 @@ public class HUD extends Module {
             sessionInfoWidget.render(theme.get().getRGB());
         }
 
-        if (arrayList.get()) {
-            renderArrayList(width, height);
+        if (moduleList.get()) {
+            renderModuleList(width, height);
         }
     });
 
@@ -89,10 +94,10 @@ public class HUD extends Module {
         updateFont();
         sessionInfoWidget = new SessionInfoWidget();
         displayInfoWidget = new DisplayInfoWidget();
-        arrayListWidget = new ArrayListWidget();
+        moduleListWidget = new ModuleListWidget();
     }
 
-    private void renderArrayList(int width, int height) {
+    private void renderModuleList(int width, int height) {
         PostProcessing postProcessing = (PostProcessing) Client.INSTANCE.getModuleManager().getModule("PostProcessing");
         boolean ppActive = postProcessing != null && postProcessing.isToggled();
 
@@ -101,7 +106,7 @@ public class HUD extends Module {
             stencilFramebuffer.framebufferClear();
             stencilFramebuffer.bindFramebuffer(false);
             RenderUtil.resetColor();
-            drawArrayList(width, height);
+            drawModuleList(width, height);
             RenderUtil.resetColor();
             stencilFramebuffer.unbindFramebuffer();
 
@@ -112,7 +117,7 @@ public class HUD extends Module {
             shadowFramebuffer = RenderUtil.createFrameBuffer(shadowFramebuffer);
             shadowFramebuffer.framebufferClear();
             shadowFramebuffer.bindFramebuffer(true);
-            drawArrayList(width, height);
+            drawModuleList(width, height);
             shadowFramebuffer.unbindFramebuffer();
 
             Shadow.renderBloom(shadowFramebuffer.framebufferTexture, (int) postProcessing.shadowRadius.get(), 1);
@@ -120,15 +125,16 @@ public class HUD extends Module {
 
         if (ppActive && postProcessing.blur.get()) {
             Blur.startBlur();
-            drawArrayList(width, height);
+            drawModuleList(width, height);
             Blur.endBlur(postProcessing.blurRadius.get(), 1);
         }
 
-        drawArrayList(width, height);
+        drawModuleList(width, height);
     }
 
-    private void drawArrayList(int width, int height) {
-        arrayListWidget.render(fr, width, height, arrayListPos.get(), suffix.get(), outline.get(), background.get(), theme.get().getRGB());
+    private void drawModuleList(int width, int height) {
+        moduleListWidget.render(fr, width, height, moduleListPos.get(), suffix.get(), outline.get(), background.get(),
+                moduleListColorMode.get(), moduleListStaticColor.get().getRGB(), moduleListWaveColor1.get(), moduleListWaveColor2.get(), (int) moduleListWaveSpeed.get());
     }
 
     public int bgColor() {
