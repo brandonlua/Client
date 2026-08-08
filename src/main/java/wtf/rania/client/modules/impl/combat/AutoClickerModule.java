@@ -13,7 +13,7 @@ import wtf.rania.utility.math.TimerUtil;
 import java.lang.reflect.Field;
 
 @ModuleInfo(name = "AutoClicker", category = Category.COMBAT)
-public class AutoClicker extends Module {
+public class AutoClickerModule extends Module {
     public final ModeValue mode = new ModeValue("Mode", new String[]{"Toggle", "Hold"}, "Hold", this);
     public final SliderValue cps = new SliderValue("CPS", 12F, 1F, 20F, 0.1F, this);
 

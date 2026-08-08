@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @ModuleInfo(name = "Antibot", category = Category.COMBAT)
-public class Antibot extends Module {
+public class AntibotModule extends Module {
 
     public final ModeValue mode = new ModeValue("Mode", new String[]{"Tab"}, "Tab", this);
 

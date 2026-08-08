@@ -1,7 +1,7 @@
 package wtf.rania.client.processes;
 
 import wtf.rania.Client;
-import wtf.rania.client.modules.impl.combat.KillAura;
+import wtf.rania.client.modules.impl.combat.KillAuraModule;
 import me.zero.alpine.listener.Listener;
 import me.zero.alpine.listener.Subscribe;
 import me.zero.alpine.listener.Subscriber;
@@ -23,11 +23,11 @@ public class TargetProcess implements Subscriber {
     public List<EntityLivingBase> list = new ArrayList<>();
     public EntityLivingBase target;
 
-    private KillAura killaura;
+    private KillAuraModule killaura;
 
     public TargetProcess() {
         Client.BUS.subscribe(this);
-        killaura = (KillAura) Client.INSTANCE.getModuleManager().getModule(KillAura.class);
+        killaura = (KillAuraModule) Client.INSTANCE.getModuleManager().getModule(KillAuraModule.class);
     }
 
     @Subscribe

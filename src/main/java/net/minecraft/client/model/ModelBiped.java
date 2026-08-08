@@ -1,7 +1,7 @@
 package net.minecraft.client.model;
 
 import wtf.rania.Client;
-import wtf.rania.client.modules.impl.combat.KillAura;
+import wtf.rania.client.modules.impl.combat.KillAuraModule;
 import wtf.rania.client.modules.impl.render.Animations;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
@@ -150,8 +150,8 @@ public class ModelBiped extends ModelBase
                 this.bipedRightArm.rotateAngleY = -0.5235988F;
         }
 
-        KillAura killAura = (KillAura) Client.INSTANCE.getModuleManager().getModule(KillAura.class);
-        if(killAura != null && killAura.isBlocking() && entityIn == Minecraft.getMinecraft().thePlayer){
+        KillAuraModule killAuraModule = (KillAuraModule) Client.INSTANCE.getModuleManager().getModule(KillAuraModule.class);
+        if(killAuraModule != null && killAuraModule.isBlocking() && entityIn == Minecraft.getMinecraft().thePlayer){
             this.bipedRightArm.rotateAngleX = this.bipedRightArm.rotateAngleX * 0.5F - ((float)Math.PI / 10F) * 3;
             this.bipedRightArm.rotateAngleY = -0.5235988F;
         }

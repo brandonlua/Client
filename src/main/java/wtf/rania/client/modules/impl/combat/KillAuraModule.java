@@ -33,7 +33,7 @@ import org.lwjgl.opengl.GL11;
 import java.awt.*;
 
 @ModuleInfo(name = "KillAura", category = Category.COMBAT)
-public class KillAura extends Module {
+public class KillAuraModule extends Module {
 
     public final ModeValue attackMode = new ModeValue("Attack Mode", new String[]{"Single"}, "Single", this);
     public final ModeValue sortMode = new ModeValue("Sort Mode", new String[]{"Range", "Health", "Armor", "Hurt-time", "Ticks"}, "Range", this);

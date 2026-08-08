@@ -1,7 +1,7 @@
 package net.minecraft.client.renderer;
 
 import wtf.rania.Client;
-import wtf.rania.client.modules.impl.combat.KillAura;
+import wtf.rania.client.modules.impl.combat.KillAuraModule;
 import wtf.rania.client.modules.impl.render.Animations;
 import wtf.rania.client.modules.impl.render.NoFire;
 import net.minecraft.block.Block;
@@ -303,7 +303,7 @@ public class ItemRenderer {
             this.rotateWithPlayerRotations((EntityPlayerSP) abstractclientplayer, partialTicks);
             GlStateManager.enableRescaleNormal();
             GlStateManager.pushMatrix();
-            KillAura aura = (KillAura) Client.INSTANCE.getModuleManager().getModule(KillAura.class);
+            KillAuraModule aura = (KillAuraModule) Client.INSTANCE.getModuleManager().getModule(KillAuraModule.class);
             i++;
             if (animations.isToggled()) {
                 if (mc.thePlayer.getHeldItem() != null)

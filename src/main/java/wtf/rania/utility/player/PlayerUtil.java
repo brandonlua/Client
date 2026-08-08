@@ -1,7 +1,7 @@
 package wtf.rania.utility.player;
 
 import wtf.rania.Client;
-import wtf.rania.client.modules.impl.combat.KillAura;
+import wtf.rania.client.modules.impl.combat.KillAuraModule;
 import wtf.rania.utility.InstanceAccess;
 import com.google.common.base.Predicate;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
@@ -198,7 +198,7 @@ public class PlayerUtil implements InstanceAccess {
             return null;
         }
 
-        KillAura aura = (KillAura) Client.INSTANCE.getModuleManager().getModule(KillAura.class);
+        KillAuraModule aura = (KillAuraModule) Client.INSTANCE.getModuleManager().getModule(KillAuraModule.class);
 
         if (aura != null && aura.isToggled() && aura.getTarget() instanceof EntityPlayer) {
             return (EntityPlayer) aura.getTarget();

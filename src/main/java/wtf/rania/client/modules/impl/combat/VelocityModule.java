@@ -4,7 +4,6 @@ import wtf.rania.Client;
 import wtf.rania.client.modules.Category;
 import wtf.rania.client.modules.Module;
 import wtf.rania.client.modules.ModuleInfo;
-import wtf.rania.client.modules.values.impl.BoolValue;
 import wtf.rania.client.modules.values.impl.ModeValue;
 import wtf.rania.client.modules.values.impl.SliderValue;
 import wtf.rania.event.impl.PacketEvent;
@@ -17,7 +16,7 @@ import net.minecraft.network.play.server.S27PacketExplosion;
 import net.minecraft.entity.Entity;
 
 @ModuleInfo(name = "Velocity" ,category = Category.COMBAT)
-public class Velocity extends Module {
+public class VelocityModule extends Module {
 
     private ModeValue mode = new ModeValue("Mode", new String[]{"Vanilla", "Jump", "Legit"}, "Vanilla", this);
     private SliderValue chance = new SliderValue("Chance", 100F, 0F, 100F, this);
