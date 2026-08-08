@@ -12,7 +12,7 @@ import me.zero.alpine.listener.Subscribe;
 import net.minecraft.network.play.server.S03PacketTimeUpdate;
 
 @ModuleInfo(name = "Atmosphere", description = "change time", category = Category.RENDER)
-public class Atmosphere extends Module {
+public class AtmosphereModule extends Module {
 
     public final SliderValue time = new SliderValue("Time", 18000, 0, 24000, this);
 
@@ -22,7 +22,7 @@ public class Atmosphere extends Module {
     @Subscribe
     private Listener<PacketEvent.Receive> packetListener;
 
-    public Atmosphere() {
+    public AtmosphereModule() {
         updateListener = new Listener<>(event -> {
             if (mc.theWorld != null) {
                 mc.theWorld.setWorldTime((long) time.get());

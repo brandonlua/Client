@@ -17,7 +17,7 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 
 @ModuleInfo(name = "NoSlow", category = Category.MOVEMENT, key = 0, enabled = false)
-public class NoSlow extends Module {
+public class NoSlowModule extends Module {
 
     public ModeValue mode = new ModeValue("Mode", new String[]{"Vanilla", "NCP"}, "Vanilla", this);
     public BoolValue sword = new BoolValue("Sword", true, this);

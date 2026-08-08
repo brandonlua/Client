@@ -11,7 +11,7 @@ import net.minecraft.network.play.server.S08PacketPlayerPosLook;
 import net.minecraft.util.BlockPos;
 
 @ModuleInfo(name = "AntiVoid", description = "Prevents falling into the void", category = Category.PLAYER, key = 0, enabled = false)
-public class AntiVoid extends Module {
+public class AntiVoidModule extends Module {
 
     public ModeValue mode = new ModeValue("Mode", new String[]{"Flag", "Collision flag", "Blink", "Bounce"}, "Flag", this);
     public BoolValue stopHorizontalMove = new BoolValue("Stop horizontal move", false, this, () -> mode.is("Blink"));

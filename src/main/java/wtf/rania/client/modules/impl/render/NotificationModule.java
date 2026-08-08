@@ -12,7 +12,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 
 @ModuleInfo(name = "Notification", category = Category.RENDER)
-public class Notification extends Module {
+public class NotificationModule extends Module {
 
     public ModeValue notificationMode = new ModeValue("Mode", new String[]{"Exhi"}, "Exhi", this);
 

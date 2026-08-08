@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @ModuleInfo(name = "TabGUI", category = Category.RENDER)
-public class TabGUI extends Module {
+public class TabGUIModule extends Module {
 
     public List<TabType> types = new ArrayList<>();
     private int typeN = 0;
@@ -239,11 +239,11 @@ public class TabGUI extends Module {
     public class TabType {
         private final List<TabModule> modules = new ArrayList<>();
         private final Category type;
-        private final TabGUI tabGUI;
+        private final TabGUIModule tabGUI;
         private boolean opened;
         private float i = 0;
 
-        public TabType(TabGUI tabGUI, Category category) {
+        public TabType(TabGUIModule tabGUI, Category category) {
             this.type = category;
             this.tabGUI = tabGUI;
             this.opened = false;
@@ -298,7 +298,7 @@ public class TabGUI extends Module {
             this.opened = opened;
         }
 
-        public TabGUI getTabGUI() {
+        public TabGUIModule getTabGUI() {
             return this.tabGUI;
         }
 

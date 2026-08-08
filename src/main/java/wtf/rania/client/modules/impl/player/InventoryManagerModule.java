@@ -1,6 +1,5 @@
 package wtf.rania.client.modules.impl.player;
 
-import wtf.rania.Client;
 import wtf.rania.client.modules.Category;
 import wtf.rania.client.modules.Module;
 import wtf.rania.client.modules.ModuleInfo;
@@ -23,7 +22,7 @@ import java.util.Comparator;
 import java.util.List;
 
 @ModuleInfo(name = "InventoryManager", category = Category.PLAYER)
-public class InventoryManager extends Module {
+public class InventoryManagerModule extends Module {
 
     private final ModeValue mode = new ModeValue("Mode", new String[]{"Open inv", "Silent", "Legit silent"}, "Open inv", this);
     private final BoolValue notWhileMoving = new BoolValue("Not while moving", false, this, () -> !mode.is("Open inv"));

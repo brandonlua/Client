@@ -3,7 +3,7 @@ package wtf.rania.gui.notification;
 import wtf.rania.Client;
 import wtf.rania.client.modules.Module;
 import wtf.rania.client.modules.impl.render.HUD;
-import wtf.rania.client.modules.impl.render.Notification;
+import wtf.rania.client.modules.impl.render.NotificationModule;
 import wtf.rania.client.modules.impl.render.PostProcessing;
 import wtf.rania.utility.animations.Animation;
 import wtf.rania.utility.animations.Direction;
@@ -75,7 +75,7 @@ public class NotificationManager {
     }
 
     public void publish(ScaledResolution sr, boolean shader) {
-        Notification notifModule = (Notification) Client.INSTANCE.getModuleManager().getModule("Notification");
+        NotificationModule notifModule = (NotificationModule) Client.INSTANCE.getModuleManager().getModule("Notification");
         if (notifModule == null || !notifModule.isToggled()) return;
 
         PostProcessing postProcessing = (PostProcessing) Client.INSTANCE.getModuleManager().getModule("PostProcessing");

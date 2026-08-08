@@ -11,12 +11,12 @@ import me.zero.alpine.listener.Listener;
 import me.zero.alpine.listener.Subscribe;
 
 @ModuleInfo(name = "TargetHUD", category = Category.RENDER)
-public class TargetHUD extends Module {
+public class TargetHUDModule extends Module {
 
     public ModeValue mode = new ModeValue("Mode", new String[]{"Modern", "Akrien", "Adjust", "Gamesense"}, "Modern", this);
     public TargetHUDWidget widget;
 
-    public TargetHUD() {
+    public TargetHUDModule() {
         widget = new TargetHUDWidget();
     }
 

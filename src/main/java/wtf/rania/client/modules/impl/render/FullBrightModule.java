@@ -6,7 +6,7 @@ import wtf.rania.client.modules.ModuleInfo;
 
 @ModuleInfo(name = "FullBright", category = Category.RENDER
 )
-public class FullBright extends Module {
+public class FullBrightModule extends Module {
     private float previousGamma;
 
     @Override

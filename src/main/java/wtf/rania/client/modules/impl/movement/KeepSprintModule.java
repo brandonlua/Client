@@ -6,7 +6,7 @@ import wtf.rania.client.modules.ModuleInfo;
 
 @ModuleInfo(name = "KeepSprint", category = Category.MOVEMENT, enabled = true
 )
-public class KeepSprint extends Module {
+public class KeepSprintModule extends Module {
     @Override
     public void onUpdate() {
         mc.gameSettings.keyBindSprint.setPressed(true);

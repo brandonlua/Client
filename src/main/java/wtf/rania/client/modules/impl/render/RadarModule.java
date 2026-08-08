@@ -29,7 +29,7 @@ import org.lwjgl.input.Mouse;
 import java.awt.*;
 
 @ModuleInfo(name = "Radar", category = Category.RENDER)
-public class Radar extends Module {
+public class RadarModule extends Module {
 
     private ModeValue mode = new ModeValue("Mode", new String[]{"Default", "Exhi", "Astolfo"}, "Default", this);
     private SliderValue size = new SliderValue("Size", 100F, 50F, 200F, this);
@@ -45,7 +45,7 @@ public class Radar extends Module {
     @Subscribe
     private Listener<Event2D> event2DListener;
 
-    public Radar() {
+    public RadarModule() {
         event2DListener = new Listener<>(e -> {
             if (mc.thePlayer == null || mc.theWorld == null) return;
 

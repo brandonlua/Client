@@ -24,7 +24,7 @@ import java.util.Map;
 import static org.lwjgl.opengl.GL11.*;
 
 @ModuleInfo(name = "XRay", category = Category.RENDER)
-public class XRay extends Module {
+public class XRayModule extends Module {
 
     private final BoolValue diamond = new BoolValue("Diamond", true, this);
     private final ColorValue diamondColor = new ColorValue("Diamond Color", new Color(0, 255, 255), this, diamond::get);
@@ -79,10 +79,12 @@ public class XRay extends Module {
         RenderUtil.stop();
     });
 
-    public XRay() {
+    public XRayModule() {
     }
 
     private void searchBlocks() {
+        if (mc.thePlayer == null || mc.theWorld == null) return;
+
         blocks.clear();
 
         int range = (int) searchRange.get();
@@ -125,11 +127,6 @@ public class XRay extends Module {
 
         AxisAlignedBB bb = new AxisAlignedBB(x, y, z, x + 1, y + 1, z + 1);
 
-        float r = (color >> 16 & 255) / 255.0F;
-        float g = (color >> 8 & 255) / 255.0F;
-        float b = (color & 255) / 255.0F;
-        float a = (color >> 24 & 255) / 255.0F;
-
         if (fill.get()) {
             RenderUtil.setColor(color);
             RenderUtil.drawBoundingBox(bb);
@@ -146,6 +143,7 @@ public class XRay extends Module {
     @Override
     public void onEnabled() {
         Client.BUS.subscribe(this);
+        lastSearch = System.currentTimeMillis();
         searchBlocks();
     }
 

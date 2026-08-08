@@ -13,7 +13,7 @@ import net.minecraft.world.gen.ChunkProviderDebug;
 import net.minecraft.world.gen.ChunkProviderFlat;
 import net.minecraft.world.gen.ChunkProviderGenerate;
 import net.minecraft.world.gen.FlatGeneratorInfo;
-import wtf.rania.client.modules.impl.render.Atmosphere;
+import wtf.rania.client.modules.impl.render.AtmosphereModule;
 
 public abstract class WorldProvider
 {
@@ -80,9 +80,9 @@ public abstract class WorldProvider
     public float calculateCelestialAngle(long worldTime, float partialTicks)
     {
         // ambience rendering stuf
-        wtf.rania.client.modules.Module ambienceModule = wtf.rania.Client.INSTANCE.getModuleManager().getModule(Atmosphere.class);
+        wtf.rania.client.modules.Module ambienceModule = wtf.rania.Client.INSTANCE.getModuleManager().getModule(AtmosphereModule.class);
         if (ambienceModule != null && ambienceModule.isToggled()) {
-            worldTime = (long) ((Atmosphere) ambienceModule).time.get();
+            worldTime = (long) ((AtmosphereModule) ambienceModule).time.get();
         }
 
         int i = (int)(worldTime % 24000L);

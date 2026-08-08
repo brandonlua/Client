@@ -13,7 +13,7 @@ import wtf.rania.client.modules.values.impl.BoolValue;
 import wtf.rania.event.impl.UpdateEvent;
 
 @ModuleInfo(name = "InvMove", category = Category.MOVEMENT)
-public class InventoryMove extends wtf.rania.client.modules.Module {
+public class InventoryMoveModule extends wtf.rania.client.modules.Module {
     private final BoolValue cancelInventory = new BoolValue("NoInv", false, this);
     private final BoolValue cancelChest = new BoolValue("No Chest", false, this);
     private final KeyBinding[] keyBindings = new KeyBinding[]{mc.gameSettings.keyBindForward, mc.gameSettings.keyBindRight, mc.gameSettings.keyBindLeft, mc.gameSettings.keyBindBack, mc.gameSettings.keyBindJump};

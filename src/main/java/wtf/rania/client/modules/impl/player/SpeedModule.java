@@ -15,7 +15,7 @@ import java.util.Timer;
 
 @ModuleInfo(name = "Speed", description = "makes you go faster", category = Category.MOVEMENT
 )
-public class Speed extends Module {
+public class SpeedModule extends Module {
 
     private final SliderValue multiplier = new SliderValue("Multiplier", 1.0F, 0.0F, 10.0F, 0.1F, this);
     private final SliderValue friction = new SliderValue("Friction", 1.0F, 0.0F, 10.0F, 0.1F, this);
@@ -24,7 +24,7 @@ public class Speed extends Module {
     @Subscribe
     private Listener<UpdateEvent> updateListener;
 
-    public Speed() {
+    public SpeedModule() {
         updateListener = new Listener<>(event -> {
             if (canBoost()) {
                 if (mc.thePlayer.onGround) {

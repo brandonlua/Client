@@ -3,7 +3,7 @@ package net.minecraft.client.renderer;
 import wtf.rania.Client;
 import wtf.rania.client.modules.impl.combat.KillAuraModule;
 import wtf.rania.client.modules.impl.render.Animations;
-import wtf.rania.client.modules.impl.render.NoFire;
+import wtf.rania.client.modules.impl.render.NoFireModule;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -672,7 +672,7 @@ public class ItemRenderer {
 
     private void renderFireInFirstPerson(float partialTicks)
     {
-        NoFire noFireModule = (NoFire) Client.INSTANCE.getModuleManager().getModule("NoFire");
+        NoFireModule noFireModule = (NoFireModule) Client.INSTANCE.getModuleManager().getModule("NoFire");
         if(noFireModule != null && noFireModule.isToggled())
             return;
         Tessellator tessellator = Tessellator.getInstance();

@@ -43,7 +43,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 @ModuleInfo(name = "ChestStealer", category = Category.PLAYER)
-public final class ChestStealer extends Module {
+public final class ChestStealerModule extends Module {
     private final SliderValue minDelay = new SliderValue("Min Delay", 1f, 0f, 5f, 1f, this);
     private final SliderValue maxDelay = new SliderValue("Max Delay", 1f, 0f, 5f, 1f, this);
     public final BoolValue menuCheck = new BoolValue("Menu Check", true, this);

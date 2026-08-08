@@ -23,7 +23,7 @@ import static org.lwjgl.opengl.GL11.glEnable;
 import static org.lwjgl.opengl.GL11.glPolygonOffset;
 
 @ModuleInfo(name = "Chams", category = Category.RENDER)
-public class Chams extends Module {
+public class ChamsModule extends Module {
 
     public final BoolValue occludedFlatProperty = new BoolValue("Occluded Flat", true, this);
     public final BoolValue visibleFlatProperty = new BoolValue("Visible Flat", true, this);

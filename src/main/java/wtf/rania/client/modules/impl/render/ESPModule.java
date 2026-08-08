@@ -37,7 +37,7 @@ import java.util.Map;
 import static org.lwjgl.opengl.GL11.*;
 
 @ModuleInfo(name = "ESP", description = "Renders players esp", category = Category.RENDER)
-public class ESP extends Module {
+public class ESPModule extends Module {
 
     public final BoolValue tags = new BoolValue("Tags", true, this);
     public final SliderValue tagsSize = new SliderValue("Tags Size", 1f, 0.1f, 2, 0.05f, this, tags::get);
@@ -69,7 +69,7 @@ public class ESP extends Module {
     @Subscribe
     private Listener<EventRenderNameTag> renderNameTagListener;
 
-    public ESP() {
+    public ESPModule() {
         renderNameTagListener = new Listener<>(event -> {
             Entity entity = event.getEntity();
             if (tags.get() && entityPosMap.containsKey(entity))

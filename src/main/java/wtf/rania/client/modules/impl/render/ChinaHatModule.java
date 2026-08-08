@@ -17,7 +17,7 @@ import wtf.rania.event.impl.Event3D;
 import java.awt.*;
 
 @ModuleInfo(name = "ChinaHat", category = Category.RENDER)
-public class ChinaHat extends Module {
+public class ChinaHatModule extends Module {
 
     @Subscribe
     private final Listener<Event3D> event3DListener = new Listener<>(event -> {

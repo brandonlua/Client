@@ -4,12 +4,16 @@ import wtf.rania.Client;
 import wtf.rania.client.modules.Category;
 import wtf.rania.client.modules.Module;
 import wtf.rania.client.modules.ModuleInfo;
-import wtf.rania.client.modules.values.impl.SliderValue;
+import wtf.rania.event.impl.game.player.TickEvent;
+import me.zero.alpine.listener.Listener;
+import me.zero.alpine.listener.Subscribe;
 
-@ModuleInfo(name = "MotionCamera", category = Category.RENDER)
-public class MotionCamera extends Module {
+@ModuleInfo(name = "BrightPlayer", category = Category.RENDER)
+public class BrightPlayerModule extends Module {
 
-    public final SliderValue interpolation = new SliderValue("Motion Interpolation", 0.15f, 0.05f, 0.5f, 0.05f, this);
+    @Subscribe
+    private final Listener<TickEvent> tickEventListener = new Listener<>(event -> {
+    });
 
     @Override
     public void onEnabled() {

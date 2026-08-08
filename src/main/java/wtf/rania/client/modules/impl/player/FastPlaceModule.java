@@ -13,14 +13,14 @@ import java.lang.reflect.Field;
 
 @ModuleInfo(name = "FastPlace", description = "Makes you use items faster", category = Category.PLAYER
 )
-public class FastPlace extends Module {
+public class FastPlaceModule extends Module {
 
     private final SliderValue rightDelay = new SliderValue("RMB delay", 0F, 0F, 1F, this);
 
     @Subscribe
     private Listener<UpdateEvent> updateListener;
 
-    public FastPlace() {
+    public FastPlaceModule() {
         updateListener = new Listener<>(event -> {
             setRightClickDelayTimer((int) rightDelay.get());
         });

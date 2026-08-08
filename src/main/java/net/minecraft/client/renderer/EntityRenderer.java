@@ -1,7 +1,7 @@
 package net.minecraft.client.renderer;
 
 import wtf.rania.Client;
-import wtf.rania.client.modules.impl.render.MotionCamera;
+import wtf.rania.client.modules.impl.render.MotionCameraModule;
 import wtf.rania.event.impl.Event3D;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
@@ -661,7 +661,7 @@ public class EntityRenderer implements IResourceManagerReloadListener
         double d1 = entity.prevPosY + (entity.posY - entity.prevPosY) * (double)partialTicks + (double)f;
         double d2 = entity.prevPosZ + (entity.posZ - entity.prevPosZ) * (double)partialTicks;
 
-        MotionCamera motionCameraModule = (MotionCamera) Client.INSTANCE.getModuleManager().getModule("MotionCamera");
+        MotionCameraModule motionCameraModule = (MotionCameraModule) Client.INSTANCE.getModuleManager().getModule("MotionCamera");
         if (motionCameraModule != null && motionCameraModule.isToggled()) {
             prevRenderX = prevRenderX + (d0 - prevRenderX) * motionCameraModule.interpolation.get();
             prevRenderY = prevRenderY + (d1 - prevRenderY) * motionCameraModule.interpolation.get();

@@ -1,7 +1,7 @@
 package net.minecraft.client.renderer.entity;
 
 import wtf.rania.Client;
-import wtf.rania.client.modules.impl.render.BrightPlayer;
+import wtf.rania.client.modules.impl.render.BrightPlayerModule;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.model.ModelPlayer;
@@ -53,7 +53,7 @@ public class RenderPlayer extends RendererLivingEntity<AbstractClientPlayer>
         {
             double d0 = y;
 
-            BrightPlayer brightPlayerModule = (BrightPlayer) Client.INSTANCE.getModuleManager().getModule("BrightPlayer");
+            BrightPlayerModule brightPlayerModule = (BrightPlayerModule) Client.INSTANCE.getModuleManager().getModule("BrightPlayer");
             if(brightPlayerModule != null && brightPlayerModule.isToggled())
                 GlStateManager.disableLighting();
             if (entity.isSneaking() && !(entity instanceof EntityPlayerSP))

@@ -1,7 +1,7 @@
 package net.minecraft.client.renderer.entity;
 
 import wtf.rania.Client;
-import wtf.rania.client.modules.impl.render.Chams;
+import wtf.rania.client.modules.impl.render.ChamsModule;
 import wtf.rania.event.impl.EventRenderNameTag;
 import wtf.rania.utility.player.RotationUtil;
 import com.google.common.collect.Lists;
@@ -340,7 +340,7 @@ public abstract class RendererLivingEntity<T extends EntityLivingBase> extends R
 
         if (flag || flag1)
         {
-            Chams instance = (Chams) Client.INSTANCE.getModuleManager().getModule("Chams");
+            ChamsModule instance = (ChamsModule) Client.INSTANCE.getModuleManager().getModule("Chams");
             if (!this.bindEntityTexture(entitylivingbaseIn))
             {
                 return;
@@ -367,7 +367,7 @@ public abstract class RendererLivingEntity<T extends EntityLivingBase> extends R
                     final boolean textureVisible = instance.textureVisibleProperty.get();
                     final boolean textureOccluded = instance.textureOccludedProperty.get();
 
-                    Chams.preRenderOccluded(!textureOccluded, occludedColor, occludedFlat);
+                    ChamsModule.preRenderOccluded(!textureOccluded, occludedColor, occludedFlat);
 
                     if (!textureOccluded) {
                         isTextureActive = false;
@@ -375,12 +375,12 @@ public abstract class RendererLivingEntity<T extends EntityLivingBase> extends R
 
                     this.mainModel.render(entitylivingbaseIn, p_77036_2_, p_77036_3_, p_77036_4_, p_77036_5_, p_77036_6_, scaleFactor);
 
-                    Chams.preRenderVisible(!textureVisible && isTextureActive, textureVisible && !isTextureActive, visibleColor, visibleFlat, occludedFlat);
+                    ChamsModule.preRenderVisible(!textureVisible && isTextureActive, textureVisible && !isTextureActive, visibleColor, visibleFlat, occludedFlat);
 
                     isTextureActive = textureVisible;
 
                     this.mainModel.render(entitylivingbaseIn, p_77036_2_, p_77036_3_, p_77036_4_, p_77036_5_, p_77036_6_, scaleFactor);
-                    Chams.postRender(!isTextureActive, visibleFlat);
+                    ChamsModule.postRender(!isTextureActive, visibleFlat);
                 } else {
                     this.mainModel.render(entitylivingbaseIn, p_77036_2_, p_77036_3_, p_77036_4_, p_77036_5_, p_77036_6_, scaleFactor);
                 }

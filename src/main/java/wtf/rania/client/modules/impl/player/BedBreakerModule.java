@@ -13,7 +13,7 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 
 @ModuleInfo(name = "BedBreaker", description = "Automatically breaks beds", category = Category.PLAYER)
-public class BedBreaker extends Module {
+public class BedBreakerModule extends Module {
 
     public BlockPos bedPos, lastPos, surroundingPos, surroundingLastPos, spawnPos;
     private IBlockState bedBlock;
@@ -31,7 +31,7 @@ public class BedBreaker extends Module {
     private boolean start, surroundingBroken;
     public boolean rotating, check;
 
-    public BedBreaker() {
+    public BedBreakerModule() {
     }
 
     public void onUpdate() {

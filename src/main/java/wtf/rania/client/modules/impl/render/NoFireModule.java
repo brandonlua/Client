@@ -9,7 +9,7 @@ import me.zero.alpine.listener.Listener;
 import me.zero.alpine.listener.Subscribe;
 
 @ModuleInfo(name = "NoFire", category = Category.RENDER)
-public class NoFire extends Module {
+public class NoFireModule extends Module {
 
     @Subscribe
     private final Listener<TickEvent> tickEventListener = new Listener<>(event -> {

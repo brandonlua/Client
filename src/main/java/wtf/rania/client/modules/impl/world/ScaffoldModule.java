@@ -52,7 +52,7 @@ import wtf.rania.utility.render.shaders.impl.Bloom;
 import wtf.rania.utility.render.shaders.impl.Shadow;
 
 @ModuleInfo(name = "Scaffold", category = Category.WORLD)
-public class Scaffold extends Module {
+public class ScaffoldModule extends Module {
     private static final double[] placeOffsets = new double[]{
             0.03125,
             0.09375,
@@ -104,7 +104,7 @@ public class Scaffold extends Module {
     public final BoolValue itemSpoof = new BoolValue("Item-spoof", false, this);
     public final BoolValue blockCounter = new BoolValue("Block-counter", true, this);
 
-    public Scaffold() {
+    public ScaffoldModule() {
     }
 
     private boolean shouldStopSprint() {
