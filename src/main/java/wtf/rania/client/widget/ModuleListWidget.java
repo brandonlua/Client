@@ -13,11 +13,11 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-public class ArrayListWidget {
+public class ModuleListWidget {
 
     private Minecraft mc = Minecraft.getMinecraft();
 
-    public void render(CFontRenderer fr, int width, int height, String position, boolean suffix, String outlineMode, float bgAlpha, int themeColor) {
+    public void render(CFontRenderer fr, int width, int height, String position, boolean suffix, String outlineMode, float bgAlpha, String colorMode, int staticColor, Color waveColor1, Color waveColor2, int waveSpeed) {
         List<Module> enabledModules = new ArrayList<>();
         for (Module module : Client.INSTANCE.getModuleManager().getModules()) {
             if (module.isHidden()) continue;
@@ -114,8 +114,6 @@ public class ArrayListWidget {
             }
         }
 
-        float lastWidth = 0;
-
         for (int i = 0; i < enabledModules.size(); i++) {
             Module module = enabledModules.get(i);
             String moduleName = module.getName();
@@ -130,11 +128,15 @@ public class ArrayListWidget {
             float moduleX = isRight ? width - moduleWidth - 3 : arrayListX;
             float moduleY = arrayListY + offset;
 
+            int rowColor = colorMode.equals("Wave")
+                    ? waveColor(i, enabledModules.size(), waveColor1, waveColor2, waveSpeed)
+                    : staticColor;
+
             int bgColor = new Color(0, 0, 0, (int) (bgAlpha * animationValue)).getRGB();
             int textColor = new Color(
-                    (themeColor >> 16) & 0xFF,
-                    (themeColor >> 8) & 0xFF,
-                    themeColor & 0xFF,
+                    (rowColor >> 16) & 0xFF,
+                    (rowColor >> 8) & 0xFF,
+                    rowColor & 0xFF,
                     (int) (255 * animationValue)
             ).getRGB();
 
@@ -164,7 +166,24 @@ public class ArrayListWidget {
             }
 
             offset += (float) (animationValue * 10);
-            lastWidth = moduleWidth;
         }
+    }
+
+    private int waveColor(int index, int total, Color from, Color to, int speed) {
+        long time = System.currentTimeMillis();
+        double period = Math.max(150.0, 3_000_000.0 / Math.max(1, speed));
+        double wavePos = (time % (long) period) / period;
+
+        double rowPos = total <= 1 ? 0.0 : index / (double) (total - 1);
+
+        double diff = Math.abs(rowPos - wavePos);
+        double distance = Math.min(diff, 1.0 - diff);
+        float factor = (float) (0.5 + 0.5 * Math.cos(distance * Math.PI));
+
+        int r = (int) (from.getRed() + (to.getRed() - from.getRed()) * factor);
+        int g = (int) (from.getGreen() + (to.getGreen() - from.getGreen()) * factor);
+        int b = (int) (from.getBlue() + (to.getBlue() - from.getBlue()) * factor);
+
+        return new Color(r, g, b).getRGB();
     }
 }
