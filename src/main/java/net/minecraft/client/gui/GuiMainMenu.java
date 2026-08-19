@@ -10,21 +10,15 @@ import net.minecraft.world.demo.DemoWorldServer;
 import net.minecraft.world.storage.ISaveFormat;
 import net.minecraft.world.storage.WorldInfo;
 import net.optifine.reflect.Reflector;
-import org.apache.commons.io.Charsets;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.URI;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 
 public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback {
     private static final AtomicInteger field_175373_f = new AtomicInteger(0);
@@ -50,6 +44,11 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback {
     private GuiButton modButton;
     private GuiScreen modUpdateNotification;
     private long initTime = System.currentTimeMillis();
+
+    private static final int BUTTON_WIDTH = 86;
+    private static final int BUTTON_HEIGHT = 16;
+    private static final int BUTTON_GAP = 6;
+    private static final int ROW_GAP = 6;
 
     public GuiMainMenu() {
         this.openGLWarning2 = field_96138_a;
@@ -79,25 +78,34 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
 
-        int buttonSpacing = 22;
-        int j = this.height / 4 + 48;
+        this.buttonList.clear();
 
-        if (this.mc.isDemo()) {
-            this.addDemoButtons(j, buttonSpacing);
-        } else {
-            this.addSingleplayerMultiplayerButtons(j, buttonSpacing);
-        }
+        int row1Width = BUTTON_WIDTH * 3 + BUTTON_GAP * 2;
+        int row1X = this.width / 2 - row1Width / 2;
+        int row1Y = this.height / 4 + 48 + 30;
 
-        this.buttonList.add(new GuiButton(0, this.width / 2 - 100, j + 72 + 12, 98, 20, I18n.format("menu.options", new Object[0])));
-        this.buttonList.add(new GuiButton(4, this.width / 2 + 2, j + 72 + 12, 98, 20, I18n.format("menu.quit", new Object[0])));
-        this.buttonList.add(new GuiButtonLanguage(5, this.width / 2 - 124, j + 72 + 12));
+        int row2Width = BUTTON_WIDTH * 2 + BUTTON_GAP;
+        int row2X = this.width / 2 - row2Width / 2;
+        int row2Y = row1Y + BUTTON_HEIGHT + ROW_GAP;
+
+        this.buttonList.add(new GuiButton(1, row1X, row1Y, BUTTON_WIDTH, BUTTON_HEIGHT,
+                I18n.format("menu.singleplayer", new Object[0])));
+        this.buttonList.add(new GuiButton(2, row1X + BUTTON_WIDTH + BUTTON_GAP, row1Y, BUTTON_WIDTH, BUTTON_HEIGHT,
+                I18n.format("menu.multiplayer", new Object[0])));
+        this.buttonList.add(this.altsButton = new GuiButton(14, row1X + (BUTTON_WIDTH + BUTTON_GAP) * 2, row1Y, BUTTON_WIDTH, BUTTON_HEIGHT,
+                "Alt Manager"));
+
+        this.buttonList.add(new GuiButton(0, row2X, row2Y, BUTTON_WIDTH, BUTTON_HEIGHT,
+                I18n.format("menu.options", new Object[0])));
+        this.buttonList.add(new GuiButton(4, row2X + BUTTON_WIDTH + BUTTON_GAP, row2Y, BUTTON_WIDTH, BUTTON_HEIGHT,
+                I18n.format("menu.quit", new Object[0])));
 
         synchronized (this.threadLock) {
             this.field_92023_s = this.fontRendererObj.getStringWidth(this.openGLWarning1);
             this.field_92024_r = this.fontRendererObj.getStringWidth(this.openGLWarning2);
             int k = Math.max(this.field_92023_s, this.field_92024_r);
             this.field_92022_t = (this.width - k) / 2;
-            this.field_92021_u = ((GuiButton)this.buttonList.get(0)).yPosition - 24;
+            this.field_92021_u = row1Y - 24;
             this.field_92020_v = this.field_92022_t + k;
             this.field_92019_w = this.field_92021_u + 24;
         }
@@ -116,36 +124,9 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback {
         }
     }
 
-    private void addSingleplayerMultiplayerButtons(int p_73969_1_, int p_73969_2_) {
-        this.buttonList.add(new GuiButton(1, this.width / 2 - 100, p_73969_1_, I18n.format("menu.singleplayer", new Object[0])));
-        this.buttonList.add(new GuiButton(2, this.width / 2 - 100, p_73969_1_ + p_73969_2_ * 1, I18n.format("menu.multiplayer", new Object[0])));
-
-        if (Reflector.GuiModList_Constructor.exists()) {
-            this.buttonList.add(this.altsButton = new GuiButton(14, this.width / 2 - 100, p_73969_1_ + p_73969_2_ * 2, 98, 20, "Alt Manager"));
-            this.buttonList.add(this.modButton = new GuiButton(6, this.width / 2 + 2, p_73969_1_ + p_73969_2_ * 2, 98, 20, I18n.format("fml.menu.mods", new Object[0])));
-        } else {
-            this.buttonList.add(this.altsButton = new GuiButton(14, this.width / 2 - 100, p_73969_1_ + p_73969_2_ * 2, "Alt Manager"));
-        }
-    }
-
-    private void addDemoButtons(int p_73972_1_, int p_73972_2_) {
-        this.buttonList.add(new GuiButton(11, this.width / 2 - 100, p_73972_1_, I18n.format("menu.playdemo", new Object[0])));
-        this.buttonList.add(this.buttonResetDemo = new GuiButton(12, this.width / 2 - 100, p_73972_1_ + p_73972_2_ * 1, I18n.format("menu.resetdemo", new Object[0])));
-        ISaveFormat isaveformat = this.mc.getSaveLoader();
-        WorldInfo worldinfo = isaveformat.getWorldInfo("Demo_World");
-
-        if (worldinfo == null) {
-            this.buttonResetDemo.enabled = false;
-        }
-    }
-
     protected void actionPerformed(GuiButton button) throws IOException {
         if (button.id == 0) {
             this.mc.displayGuiScreen(new GuiOptions(this, this.mc.gameSettings));
-        }
-
-        if (button.id == 5) {
-            this.mc.displayGuiScreen(new GuiLanguage(this, this.mc.gameSettings, this.mc.getLanguageManager()));
         }
 
         if (button.id == 1) {
@@ -162,24 +143,6 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback {
 
         if (button.id == 4) {
             this.mc.shutdown();
-        }
-
-        if (button.id == 6 && Reflector.GuiModList_Constructor.exists()) {
-            this.mc.displayGuiScreen((GuiScreen)Reflector.newInstance(Reflector.GuiModList_Constructor, new Object[] {this}));
-        }
-
-        if (button.id == 11) {
-            this.mc.launchIntegratedServer("Demo_World", "Demo_World", DemoWorldServer.demoWorldSettings);
-        }
-
-        if (button.id == 12) {
-            ISaveFormat isaveformat = this.mc.getSaveLoader();
-            WorldInfo worldinfo = isaveformat.getWorldInfo("Demo_World");
-
-            if (worldinfo != null) {
-                GuiYesNo guiyesno = GuiSelectWorld.makeDeleteWorldYesNo(this, worldinfo.getWorldName(), 12);
-                this.mc.displayGuiScreen(guiyesno);
-            }
         }
     }
 
@@ -212,7 +175,7 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback {
         if (this.openGLWarning1 != null && this.openGLWarning1.length() > 0) {
             drawRect(this.field_92022_t - 2, this.field_92021_u - 2, this.field_92020_v + 2, this.field_92019_w - 1, 1428160512);
             this.drawString(this.fontRendererObj, this.openGLWarning1, this.field_92022_t, this.field_92021_u, -1);
-            this.drawString(this.fontRendererObj, this.openGLWarning2, (this.width - this.field_92024_r) / 2, ((GuiButton)this.buttonList.get(0)).yPosition - 12, -1);
+            this.drawString(this.fontRendererObj, this.openGLWarning2, (this.width - this.field_92024_r) / 2, this.field_92021_u + 12, -1);
         }
 
         super.drawScreen(mouseX, mouseY, partialTicks);

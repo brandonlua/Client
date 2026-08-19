@@ -29,6 +29,7 @@ public class GuiButton extends Gui {
     private final Animation hoverAnimation = new DecelerateAnimation(300, 1, Direction.BACKWARDS);
     private static final Color PRIMARYCOLOR = new Color(228, 143, 255);
     private static final Color SECONDARYCOLOR = new Color(255, 113, 82);
+    private static final Color OUTLINE_COLOR = new Color(0, 0, 0, 255);
 
     public GuiButton(int buttonId, int x, int y, String buttonText) {
         this(buttonId, x, y, 200, 20, buttonText);
@@ -71,10 +72,12 @@ public class GuiButton extends Gui {
             GlStateManager.enableBlend();
             GlStateManager.blendFunc(770, 771);
 
-            int bgAlpha = !this.enabled ? 110 : (this.hovered ? 180 : 140);
+            int bgAlpha = !this.enabled ? 60 : (this.hovered ? 100 : 70);
 
-            RenderUtil.drawRoundedRect(this.xPosition, this.yPosition, this.width, this.height, 4,
-                    new Color(22, 22, 30, bgAlpha));
+            RenderUtil.drawRect(this.xPosition, this.yPosition, this.width, this.height,
+                    new Color(22, 22, 30, bgAlpha).getRGB());
+
+            RenderUtil.drawBorder(this.xPosition, this.yPosition, this.width, this.height, 1.0f, OUTLINE_COLOR.getRGB());
 
             if (this.hovered && this.enabled) {
                 hoverAnimation.setDirection(Direction.FORWARDS);
@@ -95,8 +98,8 @@ public class GuiButton extends Gui {
             int highlightY = this.yPosition + this.height - 4;
             float animWidth = (float) ((textWidth + 8) * hoverAnimation.getOutput());
 
-            RenderUtil.drawRoundedRect(this.xPosition + this.width / 2f - animWidth / 2f, highlightY,
-                    animWidth, highlightHeight, 1, accent);
+            RenderUtil.drawRect(this.xPosition + this.width / 2f - animWidth / 2f, highlightY,
+                    animWidth, highlightHeight, accent.getRGB());
 
             this.mouseDragged(mc, mouseX, mouseY);
         }
